@@ -27,6 +27,8 @@ import org.lisapark.koctopus.core.sink.Sink;
 public interface ExternalSink extends Sink {
 
     CompiledExternalSink compile() throws ValidationException;
+    
+    CompiledExternalSink compile(String json) throws ValidationException;
 
     @Override
     Sink copyOf();

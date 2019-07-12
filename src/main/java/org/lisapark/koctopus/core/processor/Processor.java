@@ -278,6 +278,8 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     public abstract Processor<MEMORY_TYPE> copyOf();
 
     public abstract CompiledProcessor<MEMORY_TYPE> compile() throws ValidationException;
+    
+    public abstract CompiledProcessor<MEMORY_TYPE> compile(String json) throws ValidationException;
 
     public Memory<MEMORY_TYPE> createMemoryForProcessor(MemoryProvider memoryProvider) {
         return null;

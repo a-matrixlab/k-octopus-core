@@ -51,6 +51,8 @@ public abstract class ExternalSource extends AbstractNode implements Source {
     }
 
     public abstract CompiledExternalSource compile() throws ValidationException;
+    
+    public abstract CompiledExternalSource compile(String json) throws ValidationException;
 
     @Override
     public abstract Source newInstance();
@@ -63,7 +65,7 @@ public abstract class ExternalSource extends AbstractNode implements Source {
         return output;
     }
 
-    protected void setOutput(Output output) {
+    protected final void setOutput(Output output) {
         this.output = output;
     }
 }
