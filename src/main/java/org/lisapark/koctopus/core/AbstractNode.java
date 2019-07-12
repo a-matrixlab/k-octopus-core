@@ -33,7 +33,7 @@ import org.lisapark.koctopus.core.source.external.ExternalSource;
 /**
  * Abstract Base class implementation of the {@link Node} interface that contains a {@link #name}, {@link #description}
  * and {@link #location} along with the corresponding setter/getter implementations from the {@link Node} interface.
- * <p/>
+ * 
  * This class also provides method to manipulate the {@link Parameter}s for this node.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -48,7 +48,7 @@ public abstract class AbstractNode implements Node {
     private Point       location;
     private Icon        icon;
     
-    private Set<Parameter> parameters = Sets.newHashSet();
+    private final Set<Parameter> parameters = Sets.newHashSet();
 
     protected AbstractNode(UUID id) {
         this.id = id;
@@ -64,9 +64,9 @@ public abstract class AbstractNode implements Node {
         this.id = id;
         setName(copyFromNode.name);
         setDescription(copyFromNode.description);
-        for (Parameter parameter : copyFromNode.getParameters()) {
+        copyFromNode.getParameters().forEach((parameter) -> {
             this.addParameter(parameter.copyOf());
-        }
+        });
     }
 
     protected AbstractNode(AbstractNode copyFromNode) {
@@ -74,9 +74,9 @@ public abstract class AbstractNode implements Node {
         setName(copyFromNode.name);
         setDescription(copyFromNode.description);
 
-        for (Parameter parameter : copyFromNode.getParameters()) {
+        copyFromNode.getParameters().forEach((parameter) -> {
             this.addParameter(parameter.copyOf());
-        }
+        });
     }
 
     @Override
@@ -90,7 +90,7 @@ public abstract class AbstractNode implements Node {
     }
 
     @Override
-    public AbstractNode setName(String name) {
+    public final AbstractNode setName(String name) {
         checkArgument(name != null, "name cannot be null");
         this.name = name;
 
@@ -103,7 +103,7 @@ public abstract class AbstractNode implements Node {
     }
 
     @Override
-    public AbstractNode setDescription(String description) {
+    public final AbstractNode setDescription(String description) {
         checkArgument(description != null, "description cannot be null");
         this.description = description;
 
@@ -225,9 +225,9 @@ public abstract class AbstractNode implements Node {
         Set<Parameter> params = getParameters();
         HashMap<String, Object> map = Maps.newHashMap();
         
-        for (Parameter param : params) {
+        params.forEach((param) -> {
             map.put(JsonUtils.formatString(param.getName()), param.getValue());
-        }
+        });
         
         procBean.setParams(map);
                         

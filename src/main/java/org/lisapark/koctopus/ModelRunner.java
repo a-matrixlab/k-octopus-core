@@ -20,7 +20,7 @@ import com.google.gson.Gson;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
-import org.lisapark.koctopus.core.ModelBean;
+import org.lisapark.koctopus.core.ModelGraph;
 import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.ProcessorBean;
 import org.lisapark.koctopus.core.ValidationException;
@@ -84,7 +84,7 @@ public class ModelRunner {
      * @param model
      * @param modelBean
      */
-    public ModelRunner(ProcessingModel model, ModelBean modelBean) {
+    public ModelRunner(ProcessingModel model, ModelGraph modelBean) {
 
         this.model = model;
 

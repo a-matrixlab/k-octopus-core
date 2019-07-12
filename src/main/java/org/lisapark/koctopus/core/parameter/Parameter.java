@@ -251,27 +251,27 @@ public abstract class Parameter<T> extends AbstractComponent {
     }
 
     public static Builder<String> stringParameterWithIdAndName(int id, String name) {
-        return new Builder<String>(id, name, String.class);
+        return new Builder<>(id, name, String.class);
     }
 
     public static Builder<Boolean> booleanParameterWithIdAndName(int id, String name) {
-        return new Builder<Boolean>(id, name, Boolean.class);
+        return new Builder<>(id, name, Boolean.class);
     }
 
     public static Builder<Long> longParameterWithIdAndName(int id, String name) {
-        return new Builder<Long>(id, name, Long.class);
+        return new Builder<>(id, name, Long.class);
     }
 
     public static Builder<Integer> integerParameterWithIdAndName(int id, String name) {
-        return new Builder<Integer>(id, name, Integer.class);
+        return new Builder<>(id, name, Integer.class);
     }
 
     public static Builder<Float> floatParameterWithIdAndName(int id, String name) {
-        return new Builder<Float>(id, name, Float.class);
+        return new Builder<>(id, name, Float.class);
     }
 
     public static Builder<Double> doubleParameterWithIdAndName(int id, String name) {
-        return new Builder<Double>(id, name, Double.class);
+        return new Builder<>(id, name, Double.class);
     }
 
     /**

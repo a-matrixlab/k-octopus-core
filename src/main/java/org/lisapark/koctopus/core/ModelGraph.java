@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * @author Alex
  */
-public class ModelBean {
+public class ModelGraph {
 
     public static final String MODEL_NAME = "modelName";
     public static final String AUTHOR_EMAIL = "authorEmail";
@@ -99,7 +99,7 @@ public class ModelBean {
      * @param bean
      * @return
      */
-    public Double compare(ModelBean bean) {
+    public Double compare(ModelGraph bean) {
         
         Double tolerance = null;
         List<Double> comp = Lists.newArrayList();
@@ -130,7 +130,7 @@ public class ModelBean {
      * @param bean
      * @return
      */
-    public Double compareBySources(ModelBean bean) {
+    public Double compareBySources(ModelGraph bean) {
         
         ProcessorBean thisSource = new Gson().fromJson(this.getSources().iterator().next(), ProcessorBean.class);
         ProcessorBean thatSource = new Gson().fromJson(bean.getSources().iterator().next(), ProcessorBean.class);
@@ -143,7 +143,7 @@ public class ModelBean {
      * @param bean
      * @return
      */
-    public Double compareBySinks(ModelBean bean) {
+    public Double compareBySinks(ModelGraph bean) {
         
         ProcessorBean thisSink = new Gson().fromJson(this.getSinks().iterator().next(), ProcessorBean.class);
         ProcessorBean thatSink = new Gson().fromJson(bean.getSinks().iterator().next(), ProcessorBean.class);
@@ -156,7 +156,7 @@ public class ModelBean {
      * @param bean
      * @return
      */
-    public Double compareByProcessors(ModelBean bean) {
+    public Double compareByProcessors(ModelGraph bean) {
         
         Double tolerance = null;
         

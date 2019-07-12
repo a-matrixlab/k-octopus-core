@@ -28,6 +28,10 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.gson.Gson;
+import java.util.UUID;
+import org.lisapark.koctopus.core.parameter.ConversionException;
+import org.lisapark.koctopus.core.parameter.Parameter;
+import org.lisapark.koctopus.core.parameter.StringParameter;
 import org.openide.util.Exceptions;
 
 /**
@@ -35,24 +39,39 @@ import org.openide.util.Exceptions;
  * added toJson() method
  */
 @Persistable
-public class ProcessingModel implements Validatable {
+public class ProcessingModel extends AbstractNode implements Validatable {
 
-    private String modelName;
-    private String modelAuthor;
     private DateTime lastSaved;
+    
     private final Set<ExternalSource> externalSources = Sets.newHashSet();
     private final Set<Processor> processors = Sets.newHashSet();
     private final Set<ExternalSink> externalSinks = Sets.newHashSet();
+//    private String modelAuthor;
+//    private String modelRepo;
+    private String modelName;
 
     public ProcessingModel(String modelName) {
+        super(UUID.randomUUID());
         checkArgument(modelName != null, "modelName cannot be null");
-        this.modelName = modelName;
+        this.setModelName(modelName);
+        this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
+    }
+    
+    public ProcessingModel(String modelName, String modelRepo) {
+        super(UUID.randomUUID());
+        checkArgument(modelName != null, "modelName cannot be null");
+        checkArgument(modelName != null, "modelRepo cannot be null");
+        
+        this.setModelName(modelName);
+        this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Repo").defaultValue("localhost:6379").build());
     }
 
-    public void setModelName(String modelName) {
-        checkArgument(modelName != null, "modelName cannot be null");
-        this.modelName = modelName;
-    }
+//    public void setModelName(String modelName) {
+//        checkArgument(modelName != null, "modelName cannot be null");
+//        this.modelName = modelName;
+//        this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
+//    }
 
     public DateTime getLastSaved() {
         return lastSaved;
@@ -79,19 +98,13 @@ public class ProcessingModel implements Validatable {
     public void removeExternalEventSource(ExternalSource source) {
         checkArgument(externalSources.contains(source), "Model does not contain source " + source);
 
-        for (ExternalSink candidateSink : externalSinks) {
-            if (candidateSink.isConnectedTo(source)) {
+        externalSinks.stream().filter((candidateSink) -> (candidateSink.isConnectedTo(source))).forEachOrdered((candidateSink) -> {
+            candidateSink.disconnect(source);
+        });
 
-                candidateSink.disconnect(source);
-            }
-        }
-
-        for (Processor candidateProcessor : processors) {
-            if (candidateProcessor.isConnectedTo(source)) {
-
-                candidateProcessor.disconnect(source);
-            }
-        }
+        processors.stream().filter((candidateProcessor) -> (candidateProcessor.isConnectedTo(source))).forEachOrdered((candidateProcessor) -> {
+            candidateProcessor.disconnect(source);
+        });
 
         externalSources.remove(source);
     }
@@ -130,20 +143,12 @@ public class ProcessingModel implements Validatable {
     public void removeProcessor(Processor processor) {
         checkArgument(processors.contains(processor), "Model does not contain sink " + processor);
 
-        for (ExternalSink candidateSink : externalSinks) {
-            if (candidateSink.isConnectedTo(processor)) {
-
-                candidateSink.disconnect(processor);
-            }
-        }
-
-        for (Processor candidateProcessor : processors) {
-            if (candidateProcessor.isConnectedTo(processor)) {
-
-                candidateProcessor.disconnect(processor);
-            }
-        }
-
+        externalSinks.stream().filter((candidateSink) -> (candidateSink.isConnectedTo(processor))).forEachOrdered((candidateSink) -> {
+            candidateSink.disconnect(processor);
+        });
+        processors.stream().filter((candidateProcessor) -> (candidateProcessor.isConnectedTo(processor))).forEachOrdered((candidateProcessor) -> {
+            candidateProcessor.disconnect(processor);
+        });
         processors.remove(processor);
     }
 
@@ -165,14 +170,11 @@ public class ProcessingModel implements Validatable {
                 inUse = true;
             }
         }
-
         for (Processor candidateProcessor : processors) {
             if (candidateProcessor.isConnectedTo(source, attribute)) {
-
                 inUse = true;
             }
         }
-
         return inUse;
     }
 
@@ -215,9 +217,9 @@ public class ProcessingModel implements Validatable {
         return ImmutableSet.copyOf(processors);
     }
 
-    public String getModelName() {
-        return modelName;
-    }
+//    public String getModelName() {
+//        return modelName;
+//    }
 
     /**
      * Validates the {@link #externalSources}, {@link #processors} and
@@ -246,43 +248,38 @@ public class ProcessingModel implements Validatable {
      * Relieves all resources by running complete() method for all
      * model's sources, processors and sinks.
      */
+    @Override
     public void complete() {
         Set<ExternalSource> sourceset = getExternalSources();
         Set<Processor> processorset = getProcessors();
         Set<ExternalSink> sinkset = getExternalSinks();
 
-        try {
-            for (ExternalSource item : sourceset) {
-                item.compile();
-            }
-
-            for (Processor item : processorset) {
-                item.compile();
-            }
-
-            sinkset.forEach((item) -> {
-                item.complete();
-            });
-
-        } catch (ValidationException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        sourceset.forEach((item) -> {
+            item.complete();
+        });
+        processorset.forEach((item) -> {
+            item.complete();
+        });
+        sinkset.forEach((item) -> {
+            item.complete();
+        });
     }
 
     /**
      *
      * @return
      */
+    @Override
     public String toJson() {
 
-        ModelBean modelBean = new ModelBean();
+        ModelGraph modelBean = new ModelGraph();
 
         modelBean.setModelName(getModelName());
         modelBean.setSources(buildSources());
         modelBean.setProcessors(buildProcessors());
         modelBean.setSinks(buildSinks());
 
-        return new Gson().toJson(modelBean, ModelBean.class);
+        return new Gson().toJson(modelBean, ModelGraph.class);
 //        return new Gson().toJson(this, this.getClass());
     }
 
@@ -298,9 +295,9 @@ public class ProcessingModel implements Validatable {
         Set<ExternalSource> sourceset = getExternalSources();
         Set<String> sources = Sets.newHashSet();
 
-        for (ExternalSource item : sourceset) {
+        sourceset.forEach((item) -> {
             sources.add(item.toJson());
-        }
+        });
 
         return sources;
     }
@@ -310,9 +307,9 @@ public class ProcessingModel implements Validatable {
         Set<Processor> processorset = getProcessors();
         Set<String> _processors = Sets.newHashSet();
 
-        for (Processor item : processorset) {
+        processorset.forEach((item) -> {
             _processors.add(item.toJson());
-        }
+        });
 
         return _processors;
     }
@@ -322,21 +319,57 @@ public class ProcessingModel implements Validatable {
         Set<ExternalSink> sinkset = getExternalSinks();
         Set<String> sinks = Sets.newHashSet();
 
-        for (ExternalSink item : sinkset) {
+        sinkset.forEach((item) -> {
             sinks.add(item.toJson());
-        }
+        });
 
         return sinks;
     }
 
-    public String getModelAuthor() {
-        return this.modelAuthor;
-    }
+//    public String getModelAuthor() {
+//        return this.modelAuthor;
+//    }
 
     /**
      * @param modelAuthor the modelAuthor to set
      */
-    public void setModelAuthor(String modelAuthor) {
-        this.modelAuthor = modelAuthor;
+//    public void setModelAuthor(String modelAuthor) {
+//        this.modelAuthor = modelAuthor;
+//    }
+
+//    public String getModelRepo() {
+//        return modelRepo;
+//    }
+
+    /**
+     * @param modelRepo the modelRepo to set
+     * @return 
+     */
+//    public void setModelRepo(String modelRepo) {
+//        this.modelRepo = modelRepo;
+//    }
+
+    @Override
+    public Reproducible newInstance() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Copyable copyOf() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     * @return the modelName
+     */
+    public String getModelName() {
+        return modelName;
+    }
+
+    /**
+     * @param modelName the modelName to set
+     */
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 }
