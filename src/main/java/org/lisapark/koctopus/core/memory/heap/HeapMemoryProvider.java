@@ -30,7 +30,7 @@ public class HeapMemoryProvider implements MemoryProvider {
     public <T> Memory<T> createCircularBuffer(int bufferSize) {
         checkArgument(bufferSize > 0, "bufferSize has to be greater than zero");
 
-        return new HeapCircularBuffer<T>(bufferSize);
+        return new HeapCircularBuffer<>(bufferSize);
     }
 
 }

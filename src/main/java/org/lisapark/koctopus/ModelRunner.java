@@ -49,7 +49,6 @@ public class ModelRunner {
         String string = "Alex. Mylnikov: - 1947/03/02";
 
         String canonical = runner.getCanonical(string);
-
     }
 
     ModelRunner() {}

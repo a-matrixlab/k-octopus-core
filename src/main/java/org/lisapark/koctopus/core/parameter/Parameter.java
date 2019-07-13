@@ -24,19 +24,20 @@ import org.lisapark.koctopus.core.ValidationException;
 
 /**
  * A {@link Parameter} is an instance of a configurable parameter of a
- * {@link org.lisapark.koctopus.core.processor.Processor}. They have a {@link #name} that can be displayed in a
- * user interface along with the {@link #description}. These can be tailored specifically to the user's likes.
- * They can also be configured as a {@link #required} parameter in which case said parameter is not valid unless
+ * {@link org.lisapark.koctopus.core.processor.Processor}.They have a {@link #name} that can be displayed in a
+ user interface along with the {@link #description}. These can be tailored specifically to the user's likes.
+ They can also be configured as a {@link #required} parameter in which case said parameter is not valid unless
  * the user enters a value. Lastly, the parameter can be configured with a {@link #constraint} in order to restrict
  * allowed values for this parameter.
- * <p/>
+ * 
  * They are generally created via the a static builder method or the {@link #copyOf()} in which case they based
  * on an existing {@link Parameter}.
- * <p/>
+ * 
  * Subclasses need to implement the {@link #parseValueFromString(String)} to convert the specified string to the type
  * of this parameter.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
+ * @param <T>
  */
 @Persistable
 public abstract class Parameter<T> extends AbstractComponent {
@@ -157,9 +158,9 @@ public abstract class Parameter<T> extends AbstractComponent {
      * @throws ValidationException thrown if the stringValue is not valid in any way
      */
     public final void setValueFromString(String stringValue) throws ValidationException {
-        T value = parseValueFromString(stringValue);
+        T _value = parseValueFromString(stringValue);
 
-        setValue(value);
+        setValue(_value);
     }
 
     /**

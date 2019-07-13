@@ -28,6 +28,7 @@ import java.util.Collection;
  * contains a window length which is a number of {@link Event}s for which the average should be computed over.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com)
+ * @param <T>
  */
 public interface Memory<T> {
 

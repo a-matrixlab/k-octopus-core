@@ -66,38 +66,38 @@ public class ProcessorOutput extends Output {
     }
 
     public static Builder<String> stringOutputWithId(int id) {
-        return new Builder<String>(id, String.class);
+        return new Builder<>(id, String.class);
     }
 
     public static Builder<Boolean> booleanOutputWithId(int id) {
-        return new Builder<Boolean>(id, Boolean.class);
+        return new Builder<>(id, Boolean.class);
     }
 
     public static Builder<Long> longOutputWithId(int id) {
-        return new Builder<Long>(id, Long.class);
+        return new Builder<>(id, Long.class);
     }
 
     public static Builder<Short> shortOutputWithId(int id) {
-        return new Builder<Short>(id, Short.class);
+        return new Builder<>(id, Short.class);
     }
 
     public static Builder<Integer> integerOutputWithId(int id) {
-        return new Builder<Integer>(id, Integer.class);
+        return new Builder<>(id, Integer.class);
     }
 
     public static Builder<Double> doubleOutputWithId(int id) {
-        return new Builder<Double>(id, Double.class);
+        return new Builder<>(id, Double.class);
     }
 
     public static Builder<Float> floatOutputWithId(int id) {
-        return new Builder<Float>(id, Float.class);
+        return new Builder<>(id, Float.class);
     }
 
     public static class Builder<T> {
         private final int id;
         private String name;
         private String description;
-        private Class<T> type;
+        private final Class<T> type;
         private String attributeName;
         private Attribute attribute;
 

@@ -44,9 +44,9 @@ public class EventType implements Copyable {
     }
 
     private EventType(EventType copyFromEventType) {
-        for (Attribute copyFromAttribute : copyFromEventType.attributes) {
+        copyFromEventType.attributes.forEach((copyFromAttribute) -> {
             this.attributes.add(copyFromAttribute.copyOf());
-        }
+        });
     }
 
     public int getNumberOfAttributes() {

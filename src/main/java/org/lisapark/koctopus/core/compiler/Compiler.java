@@ -51,11 +51,7 @@ public abstract class Compiler {
         try {
             return (Compiler) Class.forName(className).newInstance();
             // todo new exception?
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

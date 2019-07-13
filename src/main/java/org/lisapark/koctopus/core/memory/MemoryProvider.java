@@ -16,8 +16,6 @@
  */
 package org.lisapark.koctopus.core.memory;
 
-import java.util.Map;
-
 /**
  * A {@link MemoryProvider} is used by
  * {@link org.lisapark.koctopus.core.processor.Processor}s that need temporary

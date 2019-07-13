@@ -27,5 +27,6 @@ public interface Constraint<T> extends Copyable {
 
     void validate(String name, T value) throws ConstraintException;
 
+    @Override
     Constraint<T> copyOf();
 }
