@@ -52,7 +52,7 @@ public abstract class ExternalSource extends AbstractNode implements Source {
 
     public abstract CompiledExternalSource compile() throws ValidationException;
     
-    public abstract CompiledExternalSource compile(String json) throws ValidationException;
+//    public abstract CompiledExternalSource compile(String json) throws ValidationException;
 
     @Override
     public abstract Source newInstance();

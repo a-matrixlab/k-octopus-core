@@ -29,10 +29,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.gson.Gson;
 import java.util.UUID;
-import org.lisapark.koctopus.core.parameter.ConversionException;
-import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.parameter.StringParameter;
-import org.openide.util.Exceptions;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com) 03/06/2013 Alex Mylnikov
@@ -42,12 +39,10 @@ import org.openide.util.Exceptions;
 public class ProcessingModel extends AbstractNode implements Validatable {
 
     private DateTime lastSaved;
-    
+
     private final Set<ExternalSource> externalSources = Sets.newHashSet();
     private final Set<Processor> processors = Sets.newHashSet();
     private final Set<ExternalSink> externalSinks = Sets.newHashSet();
-//    private String modelAuthor;
-//    private String modelRepo;
     private String modelName;
 
     public ProcessingModel(String modelName) {
@@ -56,22 +51,16 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         this.setModelName(modelName);
         this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
     }
-    
+
     public ProcessingModel(String modelName, String modelRepo) {
         super(UUID.randomUUID());
         checkArgument(modelName != null, "modelName cannot be null");
         checkArgument(modelName != null, "modelRepo cannot be null");
-        
+
         this.setModelName(modelName);
         this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
-        this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Repo").defaultValue("localhost:6379").build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Repo").defaultValue(modelRepo).build());
     }
-
-//    public void setModelName(String modelName) {
-//        checkArgument(modelName != null, "modelName cannot be null");
-//        this.modelName = modelName;
-//        this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
-//    }
 
     public DateTime getLastSaved() {
         return lastSaved;
@@ -123,7 +112,6 @@ public class ProcessingModel extends AbstractNode implements Validatable {
      */
     public void removeExternalEventSink(ExternalSink sink) {
         checkArgument(externalSinks.contains(sink), "Model does not contain sink " + sink);
-
         externalSinks.remove(sink);
     }
 
@@ -188,20 +176,17 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     public boolean isExternalSourceInUse(ExternalSource source) {
         checkArgument(source != null, "source cannot be null");
         boolean inUse = false;
-
         for (ExternalSink candidateSink : externalSinks) {
             if (candidateSink.isConnectedTo(source)) {
                 inUse = true;
             }
         }
-
         for (Processor candidateProcessor : processors) {
             if (candidateProcessor.isConnectedTo(source)) {
 
                 inUse = true;
             }
         }
-
         return inUse;
     }
 
@@ -217,10 +202,6 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         return ImmutableSet.copyOf(processors);
     }
 
-//    public String getModelName() {
-//        return modelName;
-//    }
-
     /**
      * Validates the {@link #externalSources}, {@link #processors} and
      * {@link #externalSinks} for this model.
@@ -234,19 +215,17 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         for (ExternalSource source : externalSources) {
             source.validate();
         }
-
         for (Processor<?> processor : processors) {
             processor.validate();
         }
-
         for (ExternalSink sink : externalSinks) {
             sink.validate();
         }
     }
 
     /**
-     * Relieves all resources by running complete() method for all
-     * model's sources, processors and sinks.
+     * Relieves all resources by running complete() method for all model's
+     * sources, processors and sinks.
      */
     @Override
     public void complete() {
@@ -272,15 +251,14 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     @Override
     public String toJson() {
 
-        ModelGraph modelBean = new ModelGraph();
+        ModelGraph modelGraph = new ModelGraph();
 
-        modelBean.setModelName(getModelName());
-        modelBean.setSources(buildSources());
-        modelBean.setProcessors(buildProcessors());
-        modelBean.setSinks(buildSinks());
+        modelGraph.setModelName(getModelName());
+        modelGraph.setSources(buildSources());
+        modelGraph.setProcessors(buildProcessors());
+        modelGraph.setSinks(buildSinks());
 
-        return new Gson().toJson(modelBean, ModelGraph.class);
-//        return new Gson().toJson(this, this.getClass());
+        return new Gson().toJson(modelGraph, ModelGraph.class);
     }
 
     @Override
@@ -326,29 +304,6 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         return sinks;
     }
 
-//    public String getModelAuthor() {
-//        return this.modelAuthor;
-//    }
-
-    /**
-     * @param modelAuthor the modelAuthor to set
-     */
-//    public void setModelAuthor(String modelAuthor) {
-//        this.modelAuthor = modelAuthor;
-//    }
-
-//    public String getModelRepo() {
-//        return modelRepo;
-//    }
-
-    /**
-     * @param modelRepo the modelRepo to set
-     * @return 
-     */
-//    public void setModelRepo(String modelRepo) {
-//        this.modelRepo = modelRepo;
-//    }
-
     @Override
     public Reproducible newInstance() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -369,7 +324,12 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     /**
      * @param modelName the modelName to set
      */
-    public void setModelName(String modelName) {
+    public final void setModelName(String modelName) {
         this.modelName = modelName;
+    }
+
+    @Override
+    public Reproducible newInstance(String json) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

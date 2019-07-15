@@ -81,16 +81,16 @@ public class ModelRunner {
      * New version employs the whole model JSON converted to the ModelBean
      *
      * @param model
-     * @param modelBean
+     * @param modelGraph
      */
-    public ModelRunner(ProcessingModel model, ModelGraph modelBean) {
+    public ModelRunner(ProcessingModel model, ModelGraph modelGraph) {
 
         this.model = model;
 
-        if (modelBean != null) {
+        if (modelGraph != null) {
 
             // Update source params
-            Set<String> sources = modelBean.getSources();
+            Set<String> sources = modelGraph.getSources();
 
             if (sources != null) {
                 sources.stream().map((proc) -> new Gson().fromJson(proc, ProcessorBean.class)).forEachOrdered((procBean) -> {
@@ -99,7 +99,7 @@ public class ModelRunner {
             }
 
             //Update sink params
-            Set<String> sinks = modelBean.getSinks();
+            Set<String> sinks = modelGraph.getSinks();
 
             if (sinks != null) {
                 sinks.stream().map((proc) -> new Gson().fromJson(proc, ProcessorBean.class)).forEachOrdered((procBean) -> {
@@ -108,7 +108,7 @@ public class ModelRunner {
             }
 
             // Update processors params
-            Set<String> procs = modelBean.getProcessors();
+            Set<String> procs = modelGraph.getProcessors();
 
             if (procs != null) {
                 procs.stream().map((proc) -> new Gson().fromJson(proc, ProcessorBean.class)).forEachOrdered((procBean) -> {

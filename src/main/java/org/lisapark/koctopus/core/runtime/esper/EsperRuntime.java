@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -51,6 +52,16 @@ public class EsperRuntime implements ProcessingRuntime {
     private final ExecutorService executorService;
     private final PrintStream standardOut;
     private final PrintStream standardError;
+
+    @Override
+    public PrintStream getStandardOut() {
+        return standardOut;
+    }
+
+    @Override
+    public PrintStream getStandardError() {
+        return standardError;
+    }
 
     static enum State {
         NOT_STARTED, RUNNING, SHUTDOWN

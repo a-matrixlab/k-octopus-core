@@ -35,4 +35,6 @@ public interface Reproducible {
      * @return new instance
      */
     Reproducible newInstance();
+    
+    Reproducible newInstance(String json);
 }

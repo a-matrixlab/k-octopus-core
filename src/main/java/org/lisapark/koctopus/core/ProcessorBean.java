@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class ProcessorBean {
 
-    private final static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ProcessorBean.class.getName());
+    private final static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessorBean.class.getName());
     public static final String PROC_ID = "procId";
     public static final String CLASS_NAME = "className";
     public static final String NAME = "name";

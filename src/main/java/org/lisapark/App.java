@@ -16,30 +16,41 @@
  */
 package org.lisapark;
 
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.StreamMessage;
+import io.lettuce.core.XReadArgs;
+import io.lettuce.core.XReadArgs.StreamOffset;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.RedisStreamCommands;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.lisapark.koctopus.core.parameter.ConversionException;
-import org.openide.util.Exceptions;
 
 public class App {
 
     public static void main(String[] args) {
-        
-        int value = 0;
-        try {
-            value = parseValueFromString("12.0");
-        } catch (ConversionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        
-        System.out.println("Hello World!" + value);
 
+        RedisClient client = RedisClient.create("redis://localhost");
+        StatefulRedisConnection<String, String> connection = client.connect();
+        RedisStreamCommands<String, String> streamCommands = connection.sync();
+
+        Map<String, String> body = Collections.singletonMap("key", "value");
+        String messageId = streamCommands.xadd("my-stream", body);
+
+        List<StreamMessage<String, String>> messages = streamCommands
+                .xread(XReadArgs.Builder.count(1),
+                        StreamOffset.from("my-stream", "0"));
+       
+        System.out.println("Messages: " + messages);
     }
-    
+
     public static Integer parseValueFromString(String stringValue) throws ConversionException {
         String str = stringValue;
         try {
             // Check for decimal dot - AM
             int endIndex = stringValue.indexOf('.');
-            if(endIndex > 0) {
+            if (endIndex > 0) {
                 str = stringValue.substring(0, endIndex);
             }
             return Integer.parseInt(str);

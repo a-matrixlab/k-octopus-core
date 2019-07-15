@@ -19,12 +19,13 @@ package org.lisapark.koctopus.core.sink.external;
 import com.google.common.collect.ImmutableList;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.event.Event;
-import org.lisapark.koctopus.core.runtime.SinkContext;
 import org.lisapark.koctopus.core.sink.Sink;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.lisapark.koctopus.core.runtime.SinkContext;
+import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -46,5 +47,7 @@ public abstract class CompiledExternalSink {
         return ImmutableList.copyOf(inputs);
     }
 
+    public abstract void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId);
+    
     public abstract void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId);
 }
