@@ -16,6 +16,8 @@
  */
 package org.lisapark.koctopus.core;
 
+import org.lisapark.koctopus.core.graph.Gnode;
+
 /**
  * A {@link Reproducible} is capable of creating new instance based on itself, i.e. a copy of itself but with a new
  * identity. This means that after calling {@link #newInstance()} on object a, the call
@@ -36,5 +38,10 @@ public interface Reproducible {
      */
     Reproducible newInstance();
     
-    Reproducible newInstance(String json);
+    default Reproducible newInstance(String json){
+        Gnode gnode = new Gnode().fromJson(json);
+        return newInstance(gnode);
+    }
+    
+    Reproducible newInstance(Gnode gnode);
 }

@@ -29,6 +29,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.gson.Gson;
 import java.util.UUID;
+import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.parameter.StringParameter;
 
 /**
@@ -43,12 +44,12 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     private final Set<ExternalSource> externalSources = Sets.newHashSet();
     private final Set<Processor> processors = Sets.newHashSet();
     private final Set<ExternalSink> externalSinks = Sets.newHashSet();
-    private String modelName;
+    private String transportUrl;
 
     public ProcessingModel(String modelName) {
         super(UUID.randomUUID());
         checkArgument(modelName != null, "modelName cannot be null");
-        this.setModelName(modelName);
+        this.setName(modelName);
         this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
     }
 
@@ -57,7 +58,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         checkArgument(modelName != null, "modelName cannot be null");
         checkArgument(modelName != null, "modelRepo cannot be null");
 
-        this.setModelName(modelName);
+        this.setName(modelName);
         this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
         this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Repo").defaultValue(modelRepo).build());
     }
@@ -253,7 +254,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
 
         ModelGraph modelGraph = new ModelGraph();
 
-        modelGraph.setModelName(getModelName());
+        modelGraph.setName(getName());
         modelGraph.setSources(buildSources());
         modelGraph.setProcessors(buildProcessors());
         modelGraph.setSinks(buildSinks());
@@ -314,22 +315,29 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    // There is default implementation of this method in Reproducible interface
+    //==========================================================================
+//    @Override
+//    public Reproducible newInstance(String json) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
+
     /**
-     * @return the modelName
+     * @return the transportUrl
      */
-    public String getModelName() {
-        return modelName;
+    public String getTransportUrl() {
+        return transportUrl;
     }
 
     /**
-     * @param modelName the modelName to set
+     * @param transportUrl the transportUrl to set
      */
-    public final void setModelName(String modelName) {
-        this.modelName = modelName;
+    public void setTransportUrl(String transportUrl) {
+        this.transportUrl = transportUrl;
     }
 
     @Override
-    public Reproducible newInstance(String json) {
+    public Reproducible newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

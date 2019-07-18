@@ -31,7 +31,8 @@ public class ModelGraph {
     public static final String AUTHOR_EMAIL = "authorEmail";
     public static final String DESCRIPTION = "description";
     public static final String MODEL_JSON = "modelJson";
-    private String modelName;
+    
+    private String name;
     private String authorEmail;
     private String description;
     private Set<String> sources;
@@ -42,8 +43,8 @@ public class ModelGraph {
      *
      * @return
      */
-    public String getModelName() {
-        return modelName;
+    public String getName() {
+        return name;
     }
 
     /**
@@ -66,8 +67,8 @@ public class ModelGraph {
         this.description = description;
     }
 
-    public void setModelName(String name) {
-        this.modelName = name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Set<String> getSources() {

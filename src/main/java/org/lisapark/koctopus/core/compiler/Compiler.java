@@ -43,8 +43,6 @@ public abstract class Compiler {
 
     public abstract void setStandardError(PrintStream standardErr);
 
-    // todo
-
     public static Compiler newCompiler(String className) {
         checkArgument(className != null, "className cannot be null");
 

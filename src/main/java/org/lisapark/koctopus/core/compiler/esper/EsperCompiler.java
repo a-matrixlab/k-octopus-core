@@ -109,7 +109,7 @@ public class EsperCompiler extends org.lisapark.koctopus.core.compiler.Compiler 
         // ensure we have at least one source
         if (model.getExternalSources().isEmpty()) {
             throw new ValidationException(
-                    String.format("The model '%s' must have at least one source configured.", model.getModelName())
+                    String.format("The model '%s' must have at least one source configured.", model.getName())
             );
         }
 
@@ -118,7 +118,7 @@ public class EsperCompiler extends org.lisapark.koctopus.core.compiler.Compiler 
 
         registerEventTypesForModel(configuration, model);
 
-        EPServiceProvider epService = EPServiceProviderManager.getProvider(model.getModelName(), configuration);
+        EPServiceProvider epService = EPServiceProviderManager.getProvider(model.getName(), configuration);
         epService.initialize();
 
         List<String> errors = Lists.newLinkedList();
