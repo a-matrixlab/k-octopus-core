@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.util;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
@@ -29,6 +30,11 @@ public class Pair<F, S> {
 
     private final F first;
     private final S second;
+
+    public Pair() {
+        first = null;
+        second = null;
+    }
 
     public Pair(F first, S second) {
         this.first = first;
@@ -68,12 +74,12 @@ public class Pair<F, S> {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).
+        return MoreObjects.toStringHelper(this).
                 add("first", first).
                 add("second", second).toString();
     }
 
     public static <F, S> Pair<F, S> newInstance(F first, S second) {
-        return new Pair<F, S>(first, second);
+        return new Pair<>(first, second);
     }
 }

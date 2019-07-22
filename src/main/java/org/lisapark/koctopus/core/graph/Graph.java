@@ -1,7 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2019 Lisa Park, Inc. (www.lisa-park.net)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.lisapark.koctopus.core.graph;
 
@@ -10,35 +21,36 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
  * @author alexmy
  */
-public final class Graph implements INode<Graph, Object> {
-    
+public final class Graph implements INode<String, String, String, String, String> {
+
     public String id;
     public String type;
     public String label;
-    public Map<String, Object> properties;
-    public Map<String, Object> propertiesIn;
-    public Map<String, Object> propertiesOut;
-    
+
+    private String layout;
+    private String params;
+    private String input;
+    private String output;
+
     public Boolean directed;
-    
+
     public List<Gnode> nodes;
     public List<Edge> edges;
 
     @Override
-    public JsonObject toJson(){
+    public JsonObject toJson() {
         JsonParser parser = new JsonParser();
         JsonElement elem = parser.parse(new Gson().toJson(this, this.getClass()));
         return elem.getAsJsonObject();
     }
-    
+
     @Override
-    public Graph fromJson(String json){
+    public Graph fromJson(String json) {
         return new Gson().fromJson(json, this.getClass());
     }
 
@@ -92,38 +104,38 @@ public final class Graph implements INode<Graph, Object> {
      * @return the metadata
      */
     @Override
-    public Map<String, Object> getProperties() {
-        return properties;
+    public String getParams() {
+        return params;
     }
 
     /**
-     * @param properties the metadata to set
+     * @param params the metadata to set
      */
     @Override
-    public void setProperties(Map<String, Object> properties) {
-        this.properties = properties;
+    public void setParams(String params) {
+        this.params = params;
     }
 
     @Override
-    public Map<String, Object> getPropertiesIn() {
-        return propertiesIn;
+    public String getInput() {
+        return input;
     }
 
     @Override
-    public Map<String, Object> getPropertiesOut() {
-        return propertiesOut;
+    public String getOutput() {
+        return output;
     }
 
     @Override
-    public void setPropertiesIn(Map<String, Object> propertiesIn) {
-        this.propertiesIn = propertiesIn;
+    public void setInput(String input) {
+        this.input = input;
     }
 
     @Override
-    public void setPropertiesOut(Map<String, Object> propertiesOut) {
-        this.propertiesOut = propertiesOut;
+    public void setOutput(String output) {
+        this.output = output;
     }
-    
+
     /**
      * @return the nodes
      */
@@ -166,5 +178,15 @@ public final class Graph implements INode<Graph, Object> {
     @Override
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public String getLayout() {
+        return layout;
+    }
+
+    @Override
+    public void setLayout(String json) {
+        this.layout = json;
     }
 }

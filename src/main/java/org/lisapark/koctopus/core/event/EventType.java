@@ -16,7 +16,7 @@
  */
 package org.lisapark.koctopus.core.event;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -141,7 +141,7 @@ public class EventType implements Copyable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("attributes", attributes).toString();
+        return MoreObjects.toStringHelper(this).add("attributes", attributes).toString();
     }
 
     @Override

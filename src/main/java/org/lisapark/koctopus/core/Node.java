@@ -51,5 +51,9 @@ public interface Node extends Reproducible, Validatable, Copyable {
     
     void            complete();
     
+    /**
+     *
+     * @return
+     */
     String          toJson();
 }

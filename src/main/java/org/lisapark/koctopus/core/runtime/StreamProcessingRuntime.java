@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2013 Lisa Park, Inc. (www.lisa-park.net)
+ * Copyright (C) 2019 Lisa Park, Inc. (www.lisa-park.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import java.util.UUID;
 import org.lisapark.koctopus.core.event.Event;
 
 /**
- * @author dave sinclair(david.sinclair@lisa-park.com)
+ * @author alexmy
  * @param <M>
  */
 public interface StreamProcessingRuntime<M> {
