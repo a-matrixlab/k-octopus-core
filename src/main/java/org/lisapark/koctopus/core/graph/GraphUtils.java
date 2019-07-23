@@ -34,12 +34,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import java.util.List;
 import java.util.Set;
+import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Attribute;
 import org.lisapark.koctopus.core.parameter.Parameter;
+import org.lisapark.koctopus.core.sink.external.ExternalSink;
+import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.lisapark.koctopus.util.Pair;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -117,7 +122,7 @@ public class GraphUtils {
      *
      * @param params
      * @param multimap
-     * @return 
+     * @return
      * @throws ValidationException
      */
     public static Set<Parameter> processParams(Set<Parameter> params, Multimap<String, Pair<String, String>> multimap) throws ValidationException {
@@ -143,25 +148,72 @@ public class GraphUtils {
     /**
      *
      * @param output
-     * @param multimap
-     * @return 
+     * @param outputJson
+     * @return
      * @throws org.lisapark.koctopus.core.ValidationException
      * @throws java.lang.ClassNotFoundException
+     * @throws java.lang.InstantiationException
+     * @throws java.lang.IllegalAccessException
      */
-    public static Output processAttributes(Output output, String outputJson) throws ValidationException, ClassNotFoundException {
+    public static Output processOutput(Output output, String outputJson) throws ValidationException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         Multimap<String, Pair<String, String>> outputMap = GraphUtils.multimapFromString(outputJson);
-        Set<String> keys = outputMap.keySet();
-        for (String key : keys) {
-            Collection<Pair<String, String>> pairs = outputMap.get(key);
-            for (Pair<String, String> pair : pairs) {
-                String entryName = pair.getFirst();
-                if (output.getAttributeByName(entryName) == null) {
-                    Class clazz = Class.forName(pair.getSecond()).getClass();
-                    Attribute newAttr = Attribute.newAttribute(clazz, entryName);
-                    output.addAttribute(newAttr);
+        Set<String> keys = outputMap != null ? outputMap.keySet() : null;
+        if (outputMap != null) {
+            for (String key : keys) {
+                Collection<Pair<String, String>> pairs = outputMap.get(key);
+                for (Pair<String, String> pair : pairs) {
+                    String entryName = pair.getFirst();
+                    // Check if attribute doesn't exist (if exist we don/t need to add it)
+                    // and the value of attribute type is not empty.
+                    if (output.getAttributeByName(key) == null && pair.getSecond() != null) {
+                        if (NodeVocabulary.TYPE.equalsIgnoreCase(entryName)) {
+                            Attribute newAttr = Attribute.newAttributeByClassName(pair.getSecond(), key);
+                            output.addAttribute(newAttr);
+                        }
+                    }
                 }
             }
-        }        
+        }
         return output;
     }
+    
+    
+    public static Input processInput(Input input, String inputJson) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
+    public static void buildSource(ExternalSource source, Gnode gnode) {
+        String paramsJson = gnode.getParams();
+        Multimap<String, Pair<String, String>> paramMap = GraphUtils.multimapFromString(paramsJson);
+        Set<Parameter> params = source.getParameters();
+        try {
+            GraphUtils.processParams(params, paramMap);
+            String outputJson = gnode.getOutput();
+            Output output = source.getOutput();
+            output = GraphUtils.processOutput(output, outputJson);
+            source.setOutput(output);
+        } catch (ValidationException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    public static void buildSink(ExternalSink sink, Gnode gnode) {
+        String paramsJson = gnode.getParams();
+        Multimap<String, Pair<String, String>> paramMap = GraphUtils.multimapFromString(paramsJson);
+        Set<Parameter> params = sink.getParameters();
+        try {
+            GraphUtils.processParams(params, paramMap);
+            String inputJson = gnode.getInput();
+            List<? extends Input> inputs = sink.getInputs();
+            inputs.stream().forEach((Input input) -> {
+                input = GraphUtils.processInput(input, inputJson);
+            });
+
+//            sink.getInput(input);
+        } catch (ValidationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
 }

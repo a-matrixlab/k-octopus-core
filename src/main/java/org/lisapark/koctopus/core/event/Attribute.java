@@ -134,6 +134,38 @@ public class Attribute implements Copyable {
     public static void validateAttributeName(String name) throws ValidationException {
         checkValidity(name, "Attribute name");
     }
+    
+    public static Attribute newAttributeByClassName(String className, String name) throws ValidationException {
+        if (className.contains("String")) {
+            return stringAttribute(name);
+        }
+
+        if (className.contains("Integer")) {
+            return integerAttribute(name);
+        }
+
+        if (className.contains("Long")) {
+            return longAttribute(name);
+        }
+
+        if (className.contains("Float")) {
+            return floatAttribute(name);
+        }
+
+        if (className.contains("Double")) {
+            return doubleAttribute(name);
+        }
+
+        if (className.contains("Short")) {
+            return shortAttribute(name);
+        }
+
+        if (className.contains("Boolean")) {
+            return booleanAttribute(name);
+        }
+
+        throw new IllegalArgumentException(String.format("%s is not a valid attribute type", className));
+    }
 
     public static Attribute newAttribute(Class clazz, String name) throws ValidationException {
         if (clazz == String.class) {

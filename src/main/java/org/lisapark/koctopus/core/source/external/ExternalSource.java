@@ -65,7 +65,7 @@ public abstract class ExternalSource extends AbstractNode implements Source {
         return output;
     }
 
-    protected final void setOutput(Output output) {
+    public final void setOutput(Output output) {
         this.output = output;
     }
 }
