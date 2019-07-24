@@ -16,8 +16,10 @@
  */
 package org.lisapark.koctopus.core.sink.external;
 
+import java.util.Map;
 import org.lisapark.koctopus.core.Persistable;
 import org.lisapark.koctopus.core.ValidationException;
+import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.Sink;
 
 /**
@@ -28,9 +30,10 @@ public interface ExternalSink extends Sink {
 
     CompiledExternalSink compile() throws ValidationException;
     
-//    CompiledExternalSink compile(String json) throws ValidationException;
-
     @Override
     Sink copyOf();
     
+    Map<String,StreamReference> getReferences();
+    
+    void setReferences(Map<String,StreamReference> sourceref);
 }

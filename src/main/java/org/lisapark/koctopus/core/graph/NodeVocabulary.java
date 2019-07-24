@@ -14,4 +14,7 @@ public interface NodeVocabulary {
     static final String NAME = "NAME";
     static final String TYPE = "TYPE";
     static final String VALUE = "VALUE";
+    static final String SOURCE_CLASS = "SOURCE_CLASS";
+    static final String SOURCE_ID = "SOURCE_ID";
+    static final String REFERENCE = "REFERENCE";
 }

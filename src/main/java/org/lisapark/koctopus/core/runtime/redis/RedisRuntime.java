@@ -47,10 +47,7 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
 
     private final Collection<CompiledExternalSource> externalSources = null;
     private final int threadPoolSize = 1;
-
-    /**
-     * This service is used to run external sources in a background thread.
-     */
+    
     private final ExecutorService executorService;
     private final PrintStream standardOut;
     private final PrintStream standardError;
@@ -68,7 +65,6 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
     public RedisRuntime(String redisUrl, PrintStream standardOut, PrintStream standardError) {
         this.standardOut = standardOut;
         this.standardError = standardError;
-
         this.client = RedisClient.create(redisUrl);
         this.connection = client.connect();
         this.streamCommands = connection.sync();
@@ -76,8 +72,7 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
     }
 
     @Override
-    public void sendEventFromSource(Event event, String className, UUID id) {
-        
+    public void sendEventFromSource(Event event, String className, UUID id) {        
         String name = className + ":" + id;
         readLock.lock();
         try {
@@ -98,8 +93,7 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
      * @return 
      */
     @Override
-    public List<StreamMessage<String, String>> readFromStream(String className, UUID id, String offset, int range) {
-        
+    public List<StreamMessage<String, String>> readFromStream(String className, UUID id, String offset, int range) {        
         String streamName = className + ":" + id;
         List<StreamMessage<String, String>> messages = streamCommands
                 .xread(XReadArgs.Builder.count(range),
@@ -117,8 +111,7 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
      * @return 
      */
     @Override
-    public List<StreamMessage<String, String>> readFromStream(String className, UUID id, int ind, String offset, int range) {
-        
+    public List<StreamMessage<String, String>> readFromStream(String className, UUID id, int ind, String offset, int range) {        
         String streamName = className + ":" + id;
         List<StreamMessage<String, String>> messages = streamCommands
                 .xread(XReadArgs.Builder.count(range),

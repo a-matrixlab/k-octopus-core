@@ -34,13 +34,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
+import java.util.function.Consumer;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Attribute;
 import org.lisapark.koctopus.core.parameter.Parameter;
+import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.lisapark.koctopus.util.Pair;
@@ -100,7 +104,7 @@ public class GraphUtils {
     public static Gson gsonGnodeMeta(Multimap<String, ?> multimap) {
         final MultimapAdapter multimapAdapter = new MultimapAdapter(multimap);
         final Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
+                //                .setPrettyPrinting()
                 .registerTypeAdapter(multimap.getClass(), multimapAdapter)
                 .create();
         return gson;
@@ -157,31 +161,46 @@ public class GraphUtils {
      */
     public static Output processOutput(Output output, String outputJson) throws ValidationException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         Multimap<String, Pair<String, String>> outputMap = GraphUtils.multimapFromString(outputJson);
-        Set<String> keys = outputMap != null ? outputMap.keySet() : null;
-        if (outputMap != null) {
-            for (String key : keys) {
-                Collection<Pair<String, String>> pairs = outputMap.get(key);
-                for (Pair<String, String> pair : pairs) {
-                    String entryName = pair.getFirst();
-                    // Check if attribute doesn't exist (if exist we don/t need to add it)
-                    // and the value of attribute type is not empty.
-                    if (output.getAttributeByName(key) == null && pair.getSecond() != null) {
-                        if (NodeVocabulary.TYPE.equalsIgnoreCase(entryName)) {
-                            Attribute newAttr = Attribute.newAttributeByClassName(pair.getSecond(), key);
-                            output.addAttribute(newAttr);
-                        }
+        Set<String> keys = outputMap != null ? outputMap.keySet() : new HashSet<>();
+        for (String key : keys) {
+            Collection<Pair<String, String>> pairs = outputMap.get(key) == null ? new HashSet<>() : outputMap.get(key);
+            for (Pair<String, String> pair : pairs) {
+                String entryName = pair.getFirst();
+                // Check if attribute doesn't exist (if exist we don/t need to add it)
+                // and the value of attribute type is not empty.
+                if (output.getAttributeByName(key) == null && pair.getSecond() != null) {
+                    if (NodeVocabulary.TYPE.equalsIgnoreCase(entryName)) {
+                        Attribute newAttr = Attribute.newAttributeByClassName(pair.getSecond(), key);
+                        output.addAttribute(newAttr);
                     }
                 }
             }
         }
         return output;
     }
-    
-    
-    public static Input processInput(Input input, String inputJson) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
+    public static Map<String, StreamReference> processInput(Map<String, StreamReference> references, String inputJson) throws ValidationException {
+
+        Multimap<String, Pair<String, String>> inputMap = GraphUtils.multimapFromString(inputJson);
+        Set<String> keys = inputMap != null ? inputMap.keySet() : new HashSet<>();
+        for (String key : keys) {
+            StreamReference streamreference = new StreamReference();
+            Collection<Pair<String, String>> pairs = inputMap.get(key) == null ? new HashSet<>() : inputMap.get(key);
+
+            for (Pair<String, String> pair : pairs) {
+                String entryName = pair.getFirst();
+                if (NodeVocabulary.TYPE.equalsIgnoreCase(entryName)) {
+                    streamreference.getEventType().addAttribute(Attribute.newAttributeByClassName(pair.getSecond(), entryName));
+                } else if(NodeVocabulary.SOURCE_CLASS.equalsIgnoreCase(entryName)){
+                    streamreference.setReferenceClass(pair.getSecond());
+                } else if(NodeVocabulary.SOURCE_ID.equalsIgnoreCase(entryName)){
+                    streamreference.setReferenceId(pair.getSecond());
+                }
+            }
+            references.put(key, streamreference);
+        }
+        return references;
+    }
 
     public static void buildSource(ExternalSource source, Gnode gnode) {
         String paramsJson = gnode.getParams();
@@ -207,10 +226,12 @@ public class GraphUtils {
             String inputJson = gnode.getInput();
             List<? extends Input> inputs = sink.getInputs();
             inputs.stream().forEach((Input input) -> {
-                input = GraphUtils.processInput(input, inputJson);
+                try {
+                    sink.setReferences(GraphUtils.processInput(sink.getReferences(), inputJson));
+                } catch (ValidationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
             });
-
-//            sink.getInput(input);
         } catch (ValidationException ex) {
             Exceptions.printStackTrace(ex);
         }
