@@ -47,14 +47,13 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
 
     private final Collection<CompiledExternalSource> externalSources = null;
     private final int threadPoolSize = 1;
-    
+
     private final ExecutorService executorService;
     private final PrintStream standardOut;
     private final PrintStream standardError;
 
-    private final RedisClient client;// = RedisClient.create("redis://localhost");
-    private final StatefulRedisConnection<String, String> connection; // = client.connect();
-    private final RedisStreamCommands<String, String> streamCommands; // = connection.sync();
+    private final String redisUrl;
+    private final RedisClient client;
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock readLock = readWriteLock.readLock();
@@ -65,57 +64,70 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
     public RedisRuntime(String redisUrl, PrintStream standardOut, PrintStream standardError) {
         this.standardOut = standardOut;
         this.standardError = standardError;
+        this.redisUrl = redisUrl;
         this.client = RedisClient.create(redisUrl);
-        this.connection = client.connect();
-        this.streamCommands = connection.sync();
+//        this.connection = client.connect();
+//        this.streamCommands = connection.sync();
         this.executorService = Executors.newFixedThreadPool(threadPoolSize);
     }
 
     @Override
     public void sendEventFromSource(Event event, String className, UUID id) {        
-        String name = className + ":" + id;
+        StatefulRedisConnection<String, String> connection = client.connect();
+        RedisStreamCommands<String, String> streamCommands = connection.sync();
+        
+        String name = className + ":" + id.toString();
         readLock.lock();
         try {
             checkState(currentState == RedisRuntime.State.RUNNING, "Cannot send an event unless the runtime has been started");
             Map<String, String> map = valueToString(event.getData());
-            this.streamCommands.xadd(name, map);
+            streamCommands.xadd(name, map);
         } finally {
+            connection.close();
             readLock.unlock();
         }
     }
 
     /**
-     * 
+     *
      * @param className
      * @param id
      * @param offset
      * @param range
-     * @return 
+     * @return
      */
     @Override
-    public List<StreamMessage<String, String>> readFromStream(String className, UUID id, String offset, int range) {        
-        String streamName = className + ":" + id;
-        List<StreamMessage<String, String>> messages = streamCommands
-                .xread(XReadArgs.Builder.count(range),
-                        StreamOffset.from(streamName, String.valueOf(offset)));
+    public List<StreamMessage<String, String>> readFromStream(String className, UUID id, String offset, int range) {
+        List<StreamMessage<String, String>> messages;
+        try (StatefulRedisConnection<String, String> connection = client.connect()) {
+            RedisStreamCommands<String, String> streamCommands = connection.sync();
+            String streamName = className + ":" + id.toString();
+            messages = streamCommands
+                    .xread(XReadArgs.Builder.count(range),
+                            StreamOffset.from(streamName, String.valueOf(offset)));
+        }
         return messages;
     }
-    
+
     /**
-     * 
+     *
      * @param className
      * @param id
      * @param ind
      * @param offset
      * @param range
-     * @return 
+     * @return
      */
     @Override
-    public List<StreamMessage<String, String>> readFromStream(String className, UUID id, int ind, String offset, int range) {        
-        String streamName = className + ":" + id;
-        List<StreamMessage<String, String>> messages = streamCommands
-                .xread(XReadArgs.Builder.count(range),
-                        StreamOffset.from(streamName, String.valueOf(offset)));
+    public List<StreamMessage<String, String>> readFromStream(String className, UUID id, int ind, String offset, int range) {
+        List<StreamMessage<String, String>> messages;
+        try (StatefulRedisConnection<String, String> connection = client.connect()) {
+            RedisStreamCommands<String, String> streamCommands = connection.sync();
+            String streamName = className + ":" + id.toString();
+            messages = streamCommands
+                    .xread(XReadArgs.Builder.count(range),
+                            StreamOffset.from(streamName, String.valueOf(offset)));
+        }
         return messages;
     }
 

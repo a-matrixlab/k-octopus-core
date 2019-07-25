@@ -29,11 +29,13 @@ import org.lisapark.koctopus.core.sink.Sink;
 public interface ExternalSink extends Sink {
 
     CompiledExternalSink compile() throws ValidationException;
-    
+
+    <T extends ExternalSink> CompiledExternalSink compile(T sink) throws ValidationException;
+
     @Override
     Sink copyOf();
-    
-    Map<String,StreamReference> getReferences();
-    
-    void setReferences(Map<String,StreamReference> sourceref);
+
+    Map<String, StreamReference> getReferences();
+
+    void setReferences(Map<String, StreamReference> sourceref);
 }

@@ -52,6 +52,8 @@ public abstract class ExternalSource extends AbstractNode implements Source {
 
     public abstract CompiledExternalSource compile() throws ValidationException;
     
+    public abstract <T extends ExternalSource> CompiledExternalSource compile(T source) throws ValidationException;
+    
 //    public abstract CompiledExternalSource compile(String json) throws ValidationException;
 
     @Override
@@ -59,7 +61,7 @@ public abstract class ExternalSource extends AbstractNode implements Source {
 
     @Override
     public abstract Source copyOf();
-
+    
     @Override
     public Output getOutput() {
         return output;
