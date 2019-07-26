@@ -26,17 +26,18 @@ import org.lisapark.koctopus.core.event.Event;
  * @param <M>
  */
 public interface StreamProcessingRuntime<M> {
+
     void start();
 
     void shutdown();
 
     void sendEventFromSource(Event event, String className, UUID id);
-    
+
     PrintStream getStandardOut();
 
     PrintStream getStandardError();
-    
+
+    List<M> readFromStream(String className, UUID id, int range);
+
     List<M> readFromStream(String className, UUID id, String offset, int range);
-    
-    List<M> readFromStream(String className, UUID id, int ind, String offset, int range);
 }
