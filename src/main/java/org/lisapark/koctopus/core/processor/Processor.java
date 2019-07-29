@@ -31,13 +31,16 @@ import org.lisapark.koctopus.core.sink.Sink;
 import org.lisapark.koctopus.core.source.Source;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import org.lisapark.koctopus.core.graph.Gnode;
+import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 
 /**
  * A {@link Processor} is a program unit that has one or more {@link Input}s and potentially produces an {@link Output}.In addition to {@link Input}s and an {@link Output}, a processor can be configured with additional {@link org.lisapark.koctopus.core.parameter.Parameter}s
  that affect the behavior of the processor.
  *
- * @author dave sinclair(david.sinclair@lisa-park.com)
+ * @author dave sinclair(david.sinclair@lisa-park.com), alex mylnikov (alexmy@lisa-park.com)
  * @param <MEMORY_TYPE>
  * @see org.lisapark.koctopus.core.Input
  * @see org.lisapark.koctopus.core.Output
@@ -145,10 +148,6 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
         setOutput(output.build());
     }
 
-    protected void setOutput(ProcessorOutput output) {
-        this.output = output;
-    }
-
     protected ProcessorInput getInputById(int id) {
         ProcessorInput input = null;
 
@@ -182,6 +181,10 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     @Override
     public List<ProcessorInput> getInputs() {
         return ImmutableList.copyOf(inputs);
+    }
+
+    public void setOutput(ProcessorOutput output) {
+        this.output = output;
     }
 
     public List<ProcessorJoin> getJoins() {
@@ -273,15 +276,23 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      */
     @Override
     public abstract Processor<MEMORY_TYPE> newInstance();
+    
+    public abstract Processor<MEMORY_TYPE> newInstance(Gnode gnode);
 
     @Override
     public abstract Processor<MEMORY_TYPE> copyOf();
 
     public abstract CompiledProcessor<MEMORY_TYPE> compile() throws ValidationException;
     
+    public abstract <T extends Processor> CompiledProcessor<MEMORY_TYPE> compile(T processor) throws ValidationException;
+    
 //    public abstract CompiledProcessor<MEMORY_TYPE> compile(String json) throws ValidationException;
 
     public Memory<MEMORY_TYPE> createMemoryForProcessor(MemoryProvider memoryProvider) {
         return null;
     }
+    
+    public abstract Map<String, StreamReference> getReferences();
+
+    public abstract void setReferences(Map<String, StreamReference> sourceref);
 }

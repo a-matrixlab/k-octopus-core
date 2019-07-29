@@ -18,6 +18,7 @@ package org.lisapark.koctopus.core.runtime;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.lisapark.koctopus.core.event.Event;
 
@@ -31,13 +32,15 @@ public interface StreamProcessingRuntime<M> {
 
     void shutdown();
 
-    void sendEventFromSource(Event event, String className, UUID id);
+    void writeEvents(Map<String, Object> event, String className, UUID id);
 
     PrintStream getStandardOut();
 
     PrintStream getStandardError();
 
-    List<M> readFromStream(String className, UUID id, int range);
+    List<M> readEvents(String className, UUID id, int range);
+    
+    List<M> readEvents(String className, UUID id, String offset);
 
-    List<M> readFromStream(String className, UUID id, String offset, int range);
+    List<M> readEvents(String className, UUID id, String offset, int range);
 }

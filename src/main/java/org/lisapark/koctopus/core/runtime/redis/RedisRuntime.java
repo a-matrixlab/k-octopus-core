@@ -67,7 +67,7 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
     }
 
     @Override
-    public void sendEventFromSource(Event event, String className, UUID id) {
+    public void writeEvents(Map<String, Object> event, String className, UUID id) {
         StatefulRedisConnection<String, String> connection = client.connect();
         RedisStreamCommands<String, String> streamCommands = connection.sync();
 
@@ -75,7 +75,7 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
         readLock.lock();
         try {
             checkState(currentState == RedisRuntime.State.RUNNING, "Cannot send an event unless the runtime has been started.");
-            Map<String, String> map = valueToString(event.getData());
+            Map<String, String> map = valueToString(event);
             streamCommands.xadd(name, map);
         } finally {
             connection.close();
@@ -91,7 +91,7 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
      * @return
      */
     @Override
-    public List<StreamMessage<String, String>> readFromStream(String className, UUID id, int range) {
+    public List<StreamMessage<String, String>> readEvents(String className, UUID id, int range) {
         List<StreamMessage<String, String>> messages;
 
         String streamName = className + ":" + id.toString();
@@ -107,7 +107,6 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
                 messages = streamCommands.xread(XReadArgs.Builder.count(range),
                         StreamOffset.lastConsumed(streamName));
             }
-            offset = StreamOffset.lastConsumed(streamName).getOffset();
         }
         return messages;
     }
@@ -121,7 +120,7 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
      * @return
      */
     @Override
-    public List<StreamMessage<String, String>> readFromStream(String className, UUID id, String offset, int range) {
+    public List<StreamMessage<String, String>> readEvents(String className, UUID id, String offset, int range) {
         List<StreamMessage<String, String>> messages;
         try (StatefulRedisConnection<String, String> connection = client.connect()) {
             RedisStreamCommands<String, String> streamCommands = connection.sync();
@@ -132,7 +131,24 @@ public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<Strin
         }
         return messages;
     }
-
+/**
+     *
+     * @param className
+     * @param id
+     * @param offset
+     * @return
+     */
+    @Override
+    public List<StreamMessage<String, String>> readEvents(String className, UUID id, String offset) {
+        List<StreamMessage<String, String>> messages;
+        try (StatefulRedisConnection<String, String> connection = client.connect()) {
+            RedisStreamCommands<String, String> streamCommands = connection.sync();
+            String streamName = className + ":" + id.toString();
+            messages = streamCommands
+                    .xread(XReadArgs.StreamOffset.from(streamName, offset));
+        }
+        return messages;
+    }
     /**
      *
      * @param data

@@ -67,10 +67,10 @@ public interface INode<K, V1, V2, V3, V4> {
     public V3 getInput();    
     public V4 getOutput();
 
-    public void setLayout(V1 json);
-    public void setParams(V2 json);    
-    public void setInput(V3 json);    
-    public void setOutput(V4 json);
+    public void setLayout(V1 layout);
+    public void setParams(V2 params);    
+    public void setInput(V3 input);    
+    public void setOutput(V4 output);
     
     public JsonObject toJson();
     

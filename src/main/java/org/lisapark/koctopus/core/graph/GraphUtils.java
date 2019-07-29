@@ -34,6 +34,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,6 +45,8 @@ import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Attribute;
 import org.lisapark.koctopus.core.parameter.Parameter;
+import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
@@ -186,20 +189,22 @@ public class GraphUtils {
         for (String key : keys) {
             StreamReference streamreference = new StreamReference();
             Collection<Pair<String, String>> pairs = inputMap.get(key) == null ? new HashSet<>() : inputMap.get(key);
-
-            for (Pair<String, String> pair : pairs) {
-                String entryName = pair.getFirst();
-                if (NodeVocabulary.TYPE.equalsIgnoreCase(entryName)) {
-                    streamreference.getEventType().addAttribute(Attribute.newAttributeByClassName(pair.getSecond(), entryName));
-                } else if(NodeVocabulary.SOURCE_CLASS.equalsIgnoreCase(entryName)){
-                    streamreference.setReferenceClass(pair.getSecond());
-                } else if(NodeVocabulary.SOURCE_ID.equalsIgnoreCase(entryName)){
-                    streamreference.setReferenceId(pair.getSecond());
-                }
-            }
+            Map<String, String> pairmap = pairsToMap(pairs);
+            streamreference.getEventType().addAttribute(Attribute.newAttributeByClassName(
+                    pairmap.get(NodeVocabulary.TYPE), pairmap.get(NodeVocabulary.NAME)));
+            streamreference.setReferenceClass(pairmap.get(NodeVocabulary.SOURCE_CLASS));
+            streamreference.setReferenceId(pairmap.get(NodeVocabulary.SOURCE_ID));
             references.put(key, streamreference);
         }
         return references;
+    }
+
+    private static Map<String, String> pairsToMap(Collection<Pair<String, String>> pairs) {
+        Map<String, String> map = new HashMap<>();
+        pairs.forEach((Pair<String, String> pair) -> {
+            map.put(pair.getFirst(), pair.getSecond());
+        });
+        return map;
     }
 
     public static void buildSource(ExternalSource source, Gnode gnode) {
@@ -233,6 +238,30 @@ public class GraphUtils {
                 }
             });
         } catch (ValidationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    public static void buildProcessor(Processor processor, Gnode gnode) {
+        String paramsJson = gnode.getParams();
+        Multimap<String, Pair<String, String>> paramMap = GraphUtils.multimapFromString(paramsJson);
+        Set<Parameter> params = processor.getParameters();
+        try {
+            GraphUtils.processParams(params, paramMap);
+            String inputJson = gnode.getInput();
+            List<? extends Input> inputs = processor.getInputs();
+            inputs.stream().forEach((Input input) -> {
+                try {
+                    processor.setReferences(GraphUtils.processInput(processor.getReferences(), inputJson));
+                } catch (ValidationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            });
+            String outputJson = gnode.getOutput();
+            ProcessorOutput output = processor.getOutput();
+            output = (ProcessorOutput) GraphUtils.processOutput(output, outputJson);
+            processor.setOutput(output);
+        } catch (ValidationException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
