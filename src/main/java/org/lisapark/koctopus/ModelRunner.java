@@ -26,7 +26,7 @@ import org.lisapark.koctopus.core.ProcessorBean;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.compiler.esper.EsperCompiler;
 import org.lisapark.koctopus.core.parameter.Parameter;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
@@ -174,7 +174,7 @@ public class ModelRunner {
 
     private void setProcessorParams(Map processorParams) {
         if (processorParams != null) {
-            Set<Processor> processors = this.getModel().getProcessors();
+            Set<AbstractProcessor> processors = this.getModel().getProcessors();
             processors.stream().map((processor) -> processor.getParameters()).forEachOrdered((params) -> {
                 params.forEach((param) -> {
                     // get param name from the ProcessingModel

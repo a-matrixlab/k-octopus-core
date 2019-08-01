@@ -37,7 +37,7 @@ import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 
 /**
- * A {@link Processor} is a program unit that has one or more {@link Input}s and potentially produces an {@link Output}.In addition to {@link Input}s and an {@link Output}, a processor can be configured with additional {@link org.lisapark.koctopus.core.parameter.Parameter}s
+ * A {@link AbstractProcessor} is a program unit that has one or more {@link Input}s and potentially produces an {@link Output}.In addition to {@link Input}s and an {@link Output}, a processor can be configured with additional {@link org.lisapark.koctopus.core.parameter.Parameter}s
  that affect the behavior of the processor.
  *
  * @author dave sinclair(david.sinclair@lisa-park.com), alex mylnikov (alexmy@lisa-park.com)
@@ -47,7 +47,7 @@ import org.lisapark.koctopus.core.runtime.redis.StreamReference;
  * @see org.lisapark.koctopus.core.parameter.Parameter
  */
 @Persistable
-public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
+public abstract class AbstractProcessor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
 
     /**
      * A processor will be given zero or more inputs in order to perform its processing; this will be the
@@ -73,7 +73,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      * @param name        of processor
      * @param description of processor
      */
-    protected Processor(UUID id, String name, String description) {
+    protected AbstractProcessor(UUID id, String name, String description) {
         super(id, name, description);
     }
 
@@ -85,7 +85,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      * @param id                of new processor
      * @param copyFromProcessor that we are getting copies from
      */
-    protected Processor(UUID id, Processor<MEMORY_TYPE> copyFromProcessor) {
+    protected AbstractProcessor(UUID id, AbstractProcessor<MEMORY_TYPE> copyFromProcessor) {
         super(id, copyFromProcessor);
         deepCopyOf(copyFromProcessor);
     }
@@ -97,12 +97,12 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
      *
      * @param copyFromProcessor that we are getting copies from
      */
-    protected Processor(Processor<MEMORY_TYPE> copyFromProcessor) {
+    protected AbstractProcessor(AbstractProcessor<MEMORY_TYPE> copyFromProcessor) {
         super(copyFromProcessor);
         deepCopyOf(copyFromProcessor);
     }
 
-    private void deepCopyOf(Processor<MEMORY_TYPE> copyFromProcessor) {
+    private void deepCopyOf(AbstractProcessor<MEMORY_TYPE> copyFromProcessor) {
         
         copyFromProcessor.getInputs().forEach((input) -> {
             this.addInput(input.copyOf());
@@ -245,7 +245,7 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     }
 
     /**
-     * The {@link org.lisapark.koctopus.core.processor.Processor} will validate it's {@link #parameters}, {@link #getInputs()},
+     * The {@link org.lisapark.koctopus.core.processor.AbstractProcessor} will validate it's {@link #parameters}, {@link #getInputs()},
      * {@link #joins} and {@link #output} in that order. Any subclass that wants to do cross parameter validation should override
      * this method to do so.
      *
@@ -270,21 +270,21 @@ public abstract class Processor<MEMORY_TYPE> extends AbstractNode implements Sou
     }
 
     /**
-     * Subclasses need to implement this method to return a <b>new</b> {@link Processor} based on this one.
+     * Subclasses need to implement this method to return a <b>new</b> {@link AbstractProcessor} based on this one.
      *
      * @return new processor
      */
     @Override
-    public abstract Processor<MEMORY_TYPE> newInstance();
+    public abstract AbstractProcessor<MEMORY_TYPE> newInstance();
     
-    public abstract Processor<MEMORY_TYPE> newInstance(Gnode gnode);
+    public abstract AbstractProcessor<MEMORY_TYPE> newInstance(Gnode gnode);
 
     @Override
-    public abstract Processor<MEMORY_TYPE> copyOf();
+    public abstract AbstractProcessor<MEMORY_TYPE> copyOf();
 
     public abstract CompiledProcessor<MEMORY_TYPE> compile() throws ValidationException;
     
-    public abstract <T extends Processor> CompiledProcessor<MEMORY_TYPE> compile(T processor) throws ValidationException;
+    public abstract <T extends AbstractProcessor> CompiledProcessor<MEMORY_TYPE> compile(T processor) throws ValidationException;
     
 //    public abstract CompiledProcessor<MEMORY_TYPE> compile(String json) throws ValidationException;
 

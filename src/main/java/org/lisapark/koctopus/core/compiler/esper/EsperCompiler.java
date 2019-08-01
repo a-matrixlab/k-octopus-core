@@ -33,7 +33,7 @@ import org.lisapark.koctopus.core.memory.Memory;
 import org.lisapark.koctopus.core.memory.MemoryProvider;
 import org.lisapark.koctopus.core.memory.heap.HeapMemoryProvider;
 import org.lisapark.koctopus.core.processor.CompiledProcessor;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorInput;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
 import org.lisapark.koctopus.core.runtime.ProcessorContext;
@@ -156,7 +156,7 @@ public class EsperCompiler extends org.lisapark.koctopus.core.compiler.Compiler 
         });
     }
 
-    private Collection<CompiledProcessor<?>> compileProcessors(EPServiceProvider epService, Collection<Processor> processors, List<String> errors) {
+    private Collection<CompiledProcessor<?>> compileProcessors(EPServiceProvider epService, Collection<AbstractProcessor> processors, List<String> errors) {
         EPAdministrator admin = epService.getEPAdministrator();
         EPRuntime runtime = epService.getEPRuntime();
 

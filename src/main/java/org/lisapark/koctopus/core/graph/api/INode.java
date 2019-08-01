@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.lisapark.koctopus.core.graph;
+package org.lisapark.koctopus.core.graph.api;
 
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonObject;
@@ -22,12 +22,12 @@ import com.google.gson.JsonObject;
 /**
  *
  * @author alexmy
- * @param <K>
  * @param <V1>
  * @param <V2>
  * @param <V3>
+ * @param <V4>
  */
-public interface INode<K, V1, V2, V3, V4> {
+public interface INode<V1, V2, V3, V4> {
     /**
      * @return the id
      */
@@ -62,12 +62,12 @@ public interface INode<K, V1, V2, V3, V4> {
      * @return the metadata as a JSON string of 
      * HashMultimap<String, Pair<String, String>>
      */
-    public V1 getLayout();    
+    public V1 getPassport();    
     public V2 getParams();    
     public V3 getInput();    
     public V4 getOutput();
 
-    public void setLayout(V1 layout);
+    public void setPassport(V1 layout);
     public void setParams(V2 params);    
     public void setInput(V3 input);    
     public void setOutput(V4 output);

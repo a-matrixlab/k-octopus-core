@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.core.graph;
 
+import org.lisapark.koctopus.core.graph.api.INode;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -26,32 +27,84 @@ import java.util.List;
  *
  * @author alexmy
  */
-public final class Graph implements INode<String, String, String, String, String> {
+public final class Graph implements INode<NodePassport, NodeParams, NodeInputs, NodeOutput> {
 
-    public String id;
-    public String type;
-    public String label;
+    private String id;
+    private String type;
+    private String label;
 
-    private String layout;
-    private String params;
-    private String input;
-    private String output;
+    private NodePassport passport;
+    private NodeParams params;
+    private NodeInputs input;
+    private NodeOutput output;
 
-    public Boolean directed;
+    private Boolean directed;
 
-    public List<Gnode> nodes;
-    public List<Edge> edges;
+    private List<Gnode> nodes;
+    private List<Edge> edges;
 
+    /**
+     * @return the passport
+     */
     @Override
-    public JsonObject toJson() {
-        JsonParser parser = new JsonParser();
-        JsonElement elem = parser.parse(new Gson().toJson(this, this.getClass()));
-        return elem.getAsJsonObject();
+    public NodePassport getPassport() {
+        return passport;
     }
 
+    /**
+     * @param passport the passport to set
+     */
     @Override
-    public Graph fromJson(String json) {
-        return new Gson().fromJson(json, this.getClass());
+    public void setPassport(NodePassport passport) {
+        this.passport = passport;
+    }
+
+    /**
+     * @return the params
+     */
+    @Override
+    public NodeParams getParams() {
+        return params;
+    }
+
+    /**
+     * @param params the params to set
+     */
+    @Override
+    public void setParams(NodeParams params) {
+        this.params = params;
+    }
+
+    /**
+     * @return the input
+     */
+    @Override
+    public NodeInputs getInput() {
+        return input;
+    }
+
+    /**
+     * @param input the input to set
+     */
+    @Override
+    public void setInput(NodeInputs input) {
+        this.input = input;
+    }
+
+    /**
+     * @return the output
+     */
+    @Override
+    public NodeOutput getOutput() {
+        return output;
+    }
+
+    /**
+     * @param output the output to set
+     */
+    @Override
+    public void setOutput(NodeOutput output) {
+        this.output = output;
     }
 
     /**
@@ -101,42 +154,6 @@ public final class Graph implements INode<String, String, String, String, String
     }
 
     /**
-     * @return the metadata
-     */
-    @Override
-    public String getParams() {
-        return params;
-    }
-
-    /**
-     * @param params the metadata to set
-     */
-    @Override
-    public void setParams(String params) {
-        this.params = params;
-    }
-
-    @Override
-    public String getInput() {
-        return input;
-    }
-
-    @Override
-    public String getOutput() {
-        return output;
-    }
-
-    @Override
-    public void setInput(String input) {
-        this.input = input;
-    }
-
-    @Override
-    public void setOutput(String output) {
-        this.output = output;
-    }
-
-    /**
      * @return the nodes
      */
     public List<Gnode> getNodes() {
@@ -179,14 +196,16 @@ public final class Graph implements INode<String, String, String, String, String
     public void setId(String id) {
         this.id = id;
     }
-
+    
     @Override
-    public String getLayout() {
-        return layout;
+    public JsonObject toJson() {
+        JsonParser parser = new JsonParser();
+        JsonElement elem = parser.parse(new Gson().toJson(this, this.getClass()));
+        return elem.getAsJsonObject();
     }
 
     @Override
-    public void setLayout(String json) {
-        this.layout = json;
+    public Graph fromJson(String json) {
+        return new Gson().fromJson(json, this.getClass());
     }
 }

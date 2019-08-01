@@ -17,7 +17,7 @@
 package org.lisapark.koctopus.core;
 
 import org.lisapark.koctopus.core.ProcessingModel;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 
@@ -63,11 +63,11 @@ public interface OctopusRepository {
     
     Set<ExternalSource>     getExternalSourceTemplateByClassName(String name) throws RepositoryException;
 
-    List<Processor>         getAllProcessorTemplates() throws RepositoryException;
+    List<AbstractProcessor>         getAllProcessorTemplates() throws RepositoryException;
     
-    Set<Processor>          getProcessorTemplates(String name) throws RepositoryException;
+    Set<AbstractProcessor>          getProcessorTemplates(String name) throws RepositoryException;
     
-    Set<Processor>          getProcessorTemplateByClassName(String name) throws RepositoryException;
+    Set<AbstractProcessor>          getProcessorTemplateByClassName(String name) throws RepositoryException;
      
     // Save model
     //==========================================================================

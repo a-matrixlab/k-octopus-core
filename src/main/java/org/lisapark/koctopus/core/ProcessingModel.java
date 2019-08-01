@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
 import org.lisapark.koctopus.core.event.Attribute;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 
@@ -42,7 +42,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     private DateTime lastSaved;
 
     private final Set<ExternalSource> externalSources = Sets.newHashSet();
-    private final Set<Processor> processors = Sets.newHashSet();
+    private final Set<AbstractProcessor> processors = Sets.newHashSet();
     private final Set<ExternalSink> externalSinks = Sets.newHashSet();
     private String transportUrl;
 
@@ -116,20 +116,20 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         externalSinks.remove(sink);
     }
 
-    public void addProcessor(Processor processor) {
+    public void addProcessor(AbstractProcessor processor) {
         checkArgument(processor != null, "processor cannot be null");
         processors.add(processor);
     }
 
     /**
      * Removes the specified
-     * {@link org.lisapark.koctopus.core.processor.Processor} from this model.
+     * {@link org.lisapark.koctopus.core.processor.AbstractProcessor} from this model.
      * Doing so will remove any connections between this processor and any other
      * sink or processor.
      *
      * @param processor to remove from model
      */
-    public void removeProcessor(Processor processor) {
+    public void removeProcessor(AbstractProcessor processor) {
         checkArgument(processors.contains(processor), "Model does not contain sink " + processor);
 
         externalSinks.stream().filter((candidateSink) -> (candidateSink.isConnectedTo(processor))).forEachOrdered((candidateSink) -> {
@@ -159,7 +159,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
                 inUse = true;
             }
         }
-        for (Processor candidateProcessor : processors) {
+        for (AbstractProcessor candidateProcessor : processors) {
             if (candidateProcessor.isConnectedTo(source, attribute)) {
                 inUse = true;
             }
@@ -182,7 +182,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
                 inUse = true;
             }
         }
-        for (Processor candidateProcessor : processors) {
+        for (AbstractProcessor candidateProcessor : processors) {
             if (candidateProcessor.isConnectedTo(source)) {
 
                 inUse = true;
@@ -199,7 +199,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         return ImmutableSet.copyOf(externalSinks);
     }
 
-    public Set<Processor> getProcessors() {
+    public Set<AbstractProcessor> getProcessors() {
         return ImmutableSet.copyOf(processors);
     }
 
@@ -216,7 +216,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         for (ExternalSource source : externalSources) {
             source.validate();
         }
-        for (Processor<?> processor : processors) {
+        for (AbstractProcessor<?> processor : processors) {
             processor.validate();
         }
         for (ExternalSink sink : externalSinks) {
@@ -231,7 +231,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     @Override
     public void complete() {
         Set<ExternalSource> sourceset = getExternalSources();
-        Set<Processor> processorset = getProcessors();
+        Set<AbstractProcessor> processorset = getProcessors();
         Set<ExternalSink> sinkset = getExternalSinks();
 
         sourceset.forEach((item) -> {
@@ -283,7 +283,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
 
     private Set<String> buildProcessors() {
 
-        Set<Processor> processorset = getProcessors();
+        Set<AbstractProcessor> processorset = getProcessors();
         Set<String> _processors = Sets.newHashSet();
 
         processorset.forEach((item) -> {

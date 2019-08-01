@@ -16,41 +16,23 @@
  */
 package org.lisapark.koctopus.core.graph;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Map;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.reflect.TypeParameter;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.StringJoiner;
-import java.util.function.Consumer;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.Output;
+import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Attribute;
+import org.lisapark.koctopus.core.graph.api.Vocabulary;
 import org.lisapark.koctopus.core.parameter.Parameter;
-import org.lisapark.koctopus.core.processor.Processor;
+import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
+import org.lisapark.koctopus.core.source.Source;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.lisapark.koctopus.util.Pair;
 import org.openide.util.Exceptions;
 
 /**
@@ -59,211 +41,307 @@ import org.openide.util.Exceptions;
  */
 public class GraphUtils {
 
-    public static final Type HASH_MULTIMAP_PAIR = new TypeToken<HashMultimap<String, Pair<String, String>>>() {
-    }.getType();
-
-    public static final Type HASH_MULTIMAP_STRING = new TypeToken<HashMultimap<String, String>>() {
-    }.getType();
-
-    static class MultimapAdapter implements JsonDeserializer<Multimap<String, ?>>, JsonSerializer<Multimap<String, ?>> {
-
-        private final Multimap<String, Object> multimap;
-
-        MultimapAdapter(Multimap multimap) {
-            this.multimap = multimap;
-        }
-
-        @Override
-        public Multimap<String, ?> deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-            final Map<String, Collection<Object>> map = context.deserialize(json, multimapTypeToMapType(type));
-            map.entrySet().forEach((e) -> {
-                multimap.putAll(e.getKey(), e.getValue());
-            });
-            return multimap;
-        }
-
-        @Override
-        public JsonElement serialize(Multimap<String, ?> src, Type type, JsonSerializationContext context) {
-            final Map<?, ?> map = src.asMap();
-            return context.serialize(map);
-        }
-
-        private <V> Type multimapTypeToMapType(Type type) {
-            final Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
-            assert typeArguments.length == 2;
-            @SuppressWarnings("unchecked")
-            final TypeToken<Map<String, Collection<V>>> mapTypeToken = new TypeToken<Map<String, Collection<V>>>() {
-            }.where(new TypeParameter<V>() {
-            }, (TypeToken<V>) TypeToken.of(typeArguments[1]));
-            return mapTypeToken.getType();
-        }
-    }
-
-    /**
-     *
-     * @param multimap
-     * @return
-     */
-    public static Gson gsonGnodeMeta(Multimap<String, ?> multimap) {
-        final MultimapAdapter multimapAdapter = new MultimapAdapter(multimap);
-        final Gson gson = new GsonBuilder()
-                //                .setPrettyPrinting()
-                .registerTypeAdapter(multimap.getClass(), multimapAdapter)
-                .create();
-        return gson;
-    }
-
-    /**
-     *
-     * @param json
-     * @return
-     */
-    public static Multimap<String, Pair<String, String>> multimapFromString(String json) {
-        Multimap<String, Pair<String, String>> map = HashMultimap.create();
-        Gson gson = GraphUtils.gsonGnodeMeta(map);
-        map = gson.fromJson(json, GraphUtils.HASH_MULTIMAP_PAIR);
-        return map;
-    }
-
-    /**
-     *
-     * @param params
-     * @param multimap
-     * @return
-     * @throws ValidationException
-     */
-    public static Set<Parameter> processParams(Set<Parameter> params, Multimap<String, Pair<String, String>> multimap) throws ValidationException {
-        for (Parameter param : params) {
-            String key = String.valueOf(param.getId());
-            Collection<Pair<String, String>> pairs = multimap.get(key);
-            for (Pair<String, String> pair : pairs) {
-                String entryName = pair.getFirst();
-                switch (entryName) {
-                    case NodeVocabulary.NAME:
-                        param.setName(pair.getSecond());
-                        break;
-                    case NodeVocabulary.VALUE:
-                        param.setValueFromString(pair.getSecond());
-                    default:
-                        break;
-                }
-            }
-        }
-        return params;
-    }
-
-    /**
-     *
-     * @param output
-     * @param outputJson
-     * @return
-     * @throws org.lisapark.koctopus.core.ValidationException
-     * @throws java.lang.ClassNotFoundException
-     * @throws java.lang.InstantiationException
-     * @throws java.lang.IllegalAccessException
-     */
-    public static Output processOutput(Output output, String outputJson) throws ValidationException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Multimap<String, Pair<String, String>> outputMap = GraphUtils.multimapFromString(outputJson);
-        Set<String> keys = outputMap != null ? outputMap.keySet() : new HashSet<>();
-        for (String key : keys) {
-            Collection<Pair<String, String>> pairs = outputMap.get(key) == null ? new HashSet<>() : outputMap.get(key);
-            for (Pair<String, String> pair : pairs) {
-                String entryName = pair.getFirst();
-                // Check if attribute doesn't exist (if exist we don/t need to add it)
-                // and the value of attribute type is not empty.
-                if (output.getAttributeByName(key) == null && pair.getSecond() != null) {
-                    if (NodeVocabulary.TYPE.equalsIgnoreCase(entryName)) {
-                        Attribute newAttr = Attribute.newAttributeByClassName(pair.getSecond(), key);
-                        output.addAttribute(newAttr);
-                    }
-                }
-            }
-        }
-        return output;
-    }
-
-    public static Map<String, StreamReference> processInput(Map<String, StreamReference> references, String inputJson) throws ValidationException {
-
-        Multimap<String, Pair<String, String>> inputMap = GraphUtils.multimapFromString(inputJson);
-        Set<String> keys = inputMap != null ? inputMap.keySet() : new HashSet<>();
-        for (String key : keys) {
-            StreamReference streamreference = new StreamReference();
-            Collection<Pair<String, String>> pairs = inputMap.get(key) == null ? new HashSet<>() : inputMap.get(key);
-            Map<String, String> pairmap = pairsToMap(pairs);
-            streamreference.getEventType().addAttribute(Attribute.newAttributeByClassName(
-                    pairmap.get(NodeVocabulary.TYPE), pairmap.get(NodeVocabulary.NAME)));
-            streamreference.setReferenceClass(pairmap.get(NodeVocabulary.SOURCE_CLASS));
-            streamreference.setReferenceId(pairmap.get(NodeVocabulary.SOURCE_ID));
-            references.put(key, streamreference);
-        }
-        return references;
-    }
-
-    private static Map<String, String> pairsToMap(Collection<Pair<String, String>> pairs) {
-        Map<String, String> map = new HashMap<>();
-        pairs.forEach((Pair<String, String> pair) -> {
-            map.put(pair.getFirst(), pair.getSecond());
-        });
-        return map;
-    }
-
     public static void buildSource(ExternalSource source, Gnode gnode) {
-        String paramsJson = gnode.getParams();
-        Multimap<String, Pair<String, String>> paramMap = GraphUtils.multimapFromString(paramsJson);
+        NodeParams gparams = (NodeParams) gnode.getParams();
         Set<Parameter> params = source.getParameters();
-        try {
-            GraphUtils.processParams(params, paramMap);
-            String outputJson = gnode.getOutput();
-            Output output = source.getOutput();
-            output = GraphUtils.processOutput(output, outputJson);
-            source.setOutput(output);
-        } catch (ValidationException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        params.forEach((Parameter param) -> {
+            NodeParam _param = gparams.getParams().get(param.getId());
+            if (_param != null) {
+                try {
+                    String value = _param.getValue() == null ? null : _param.getValue().toString();
+                    param.setValueFromString(value);
+                } catch (ValidationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        });
+        final NodeOutput goutput = (NodeOutput) gnode.getOutput();
+        Output output = source.getOutput();
+        goutput.getAttributes().forEach((String name, NodeAttribute att) -> {
+            if (output.getAttributeByName(name) == null) {
+                Attribute newAttr;
+                try {
+                    newAttr = Attribute.newAttributeByClassName(att.getClassName(), name);
+                    output.addAttribute(newAttr);
+                } catch (ValidationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        });
+        source.setOutput(output);
     }
 
     public static void buildSink(ExternalSink sink, Gnode gnode) {
-        String paramsJson = gnode.getParams();
-        Multimap<String, Pair<String, String>> paramMap = GraphUtils.multimapFromString(paramsJson);
+        NodeParams gparams = (NodeParams) gnode.getParams();
         Set<Parameter> params = sink.getParameters();
-        try {
-            GraphUtils.processParams(params, paramMap);
-            String inputJson = gnode.getInput();
-            List<? extends Input> inputs = sink.getInputs();
-            inputs.stream().forEach((Input input) -> {
+        params.forEach((Parameter param) -> {
+            NodeParam _param = (NodeParam) gparams.getParams().get(param.getId());
+            if (_param != null) {
                 try {
-                    sink.setReferences(GraphUtils.processInput(sink.getReferences(), inputJson));
+                    String value = _param.getValue() == null ? null : _param.getValue().toString();
+                    param.setValueFromString(value);
                 } catch (ValidationException ex) {
                     Exceptions.printStackTrace(ex);
                 }
-            });
-        } catch (ValidationException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+            }
+        });
+        final NodeInputs ginputs = (NodeInputs) gnode.getInput();
+        List<? extends Input> inputs = sink.getInputs();
+        inputs.forEach((Input input) -> {
+            NodeInput _input = (NodeInput) ginputs.getSources().get(input.getName());
+            if (_input != null) {           
+                StreamReference ref = new StreamReference();
+                ref.setReferenceClass(_input.getSourceClassName());
+                ref.setReferenceId(_input.getSourceId());
+                ref.setAttributes(_input.getAttributes());
+                sink.getReferences().put(input.getName(), ref);
+            }
+        });
     }
 
-    public static void buildProcessor(Processor processor, Gnode gnode) {
-        String paramsJson = gnode.getParams();
-        Multimap<String, Pair<String, String>> paramMap = GraphUtils.multimapFromString(paramsJson);
+    public static void buildProcessor(AbstractProcessor processor, Gnode gnode) {
+        NodeParams gparams = (NodeParams) gnode.getParams();
         Set<Parameter> params = processor.getParameters();
-        try {
-            GraphUtils.processParams(params, paramMap);
-            String inputJson = gnode.getInput();
-            List<? extends Input> inputs = processor.getInputs();
-            inputs.stream().forEach((Input input) -> {
+        params.forEach((Parameter param) -> {
+            NodeParam _param = (NodeParam) gparams.getParams().get(param.getId());
+            if (_param != null) {
                 try {
-                    processor.setReferences(GraphUtils.processInput(processor.getReferences(), inputJson));
+                    String value = _param.getValue() == null ? null : _param.getValue().toString();
+                    param.setValueFromString(value);
                 } catch (ValidationException ex) {
                     Exceptions.printStackTrace(ex);
                 }
-            });
-            String outputJson = gnode.getOutput();
-            ProcessorOutput output = processor.getOutput();
-            output = (ProcessorOutput) GraphUtils.processOutput(output, outputJson);
-            processor.setOutput(output);
-        } catch (ValidationException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+            }
+        });
+        final NodeInputs ginputs = (NodeInputs) gnode.getInput();
+        List<? extends Input> inputs = processor.getInputs();
+        inputs.forEach((Input input) -> {
+            NodeInput _input = (NodeInput) ginputs.getSources().get(input.getName());
+            if (_input != null) {
+                StreamReference ref = new StreamReference();
+                ref.setReferenceClass(_input.getSourceClassName());
+                ref.setReferenceId(_input.getSourceId());
+                ref.setAttributes(_input.getAttributes());
+                processor.getReferences().put(input.getName(), ref);
+            }
+        });
+        final NodeOutput goutput = (NodeOutput) gnode.getOutput();
+        ProcessorOutput output = processor.getOutput();
+        goutput.getAttributes().forEach((String name, NodeAttribute att) -> {
+            if (output.getAttributeByName(name) == null) {
+                Attribute newAttr;
+                try {
+                    newAttr = Attribute.newAttributeByClassName(att.getClassName(), name);
+                    output.addAttribute(newAttr);
+                } catch (ValidationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        });
+        processor.setOutput(output);
     }
+    
+    public static Graph compileGraph(ProcessingModel model) {
+        Graph graph = new Graph();
 
+        graph.setId(model.getId().toString());
+        graph.setLabel(model.getName());
+        graph.setType(Vocabulary.PROCESSING_GRAPH);
+        graph.setDirected(Boolean.TRUE);
+
+        NodeParams gparams = new NodeParams();
+        gparams.setParams(new HashMap<>());
+        NodeParam nodeparam = new NodeParam();
+        nodeparam.setId(0);
+        nodeparam.setName(Vocabulary.TRANSPORT_URL);
+        nodeparam.setClassName(new String().getClass().getCanonicalName());
+        nodeparam.setValue(model.getTransportUrl());
+        gparams.getParams().put(0, nodeparam);
+        graph.setParams(gparams);
+        
+        List<Gnode> nodes = new ArrayList<>();
+        List<Edge> edges = new ArrayList<>();
+
+        // Sources
+        //======================================================================
+        Set<ExternalSource> sources = model.getExternalSources();
+        sources.stream().forEach((ExternalSource source) -> {
+            Gnode sourceGnode = new Gnode();
+            sourceGnode.setId(source.getId().toString());
+            sourceGnode.setLabel(Vocabulary.SOURCE);
+            sourceGnode.setType(source.getClass().getCanonicalName());
+            sourceGnode.setTransportUrl(model.getTransportUrl());
+
+            Set<Parameter> params = source.getParameters();
+            NodeParams _params = new NodeParams();
+            _params.setParams(new HashMap<>());
+            params.stream().forEach((Parameter param) -> {
+                NodeParam _param = new NodeParam();
+                _param.setId(param.getId());
+                _param.setName(param.getName());
+                _param.setClassName(param.getType().getCanonicalName());
+                _param.setValue(param.getValue());
+                _params.getParams().put(param.getId(), _param);
+            });
+            sourceGnode.setParams(_params);
+
+            Output output = source.getOutput();
+            List<Attribute> attrs = source.getOutput().getAttributes();
+            NodeOutput nodeOutput = new NodeOutput();
+            nodeOutput.setName(output.getName());
+            nodeOutput.setId(output.getId());
+
+            NodeAttributes nodeattrs = new NodeAttributes();
+            nodeattrs.setAttributes(new HashMap<>());
+            attrs.stream().forEach((Attribute attr) -> {
+                NodeAttribute nodeattr = new NodeAttribute();
+                nodeattr.setName(attr.getName());
+                nodeattr.setClassName(attr.getType().getCanonicalName());
+                nodeattrs.getAttributes().put(attr.getName(), nodeattr);
+            });
+            nodeOutput.setAttributes(nodeattrs.getAttributes());
+            sourceGnode.setOutput(nodeOutput);
+            nodes.add(sourceGnode);
+        });
+
+        // Processors
+        //======================================================================
+        Set<AbstractProcessor> processors = model.getProcessors();
+        processors.stream().forEach((AbstractProcessor proc) -> {
+            Gnode procGnode = new Gnode();
+            procGnode.setId(proc.getId().toString());
+            procGnode.setLabel(Vocabulary.PROCESSOR);
+            procGnode.setType(proc.getClass().getCanonicalName());
+            procGnode.setTransportUrl(model.getTransportUrl());
+
+            // Setting params
+            Set<Parameter> params = proc.getParameters();
+            NodeParams _params = new NodeParams();
+            _params.setParams(new HashMap<>());
+            params.stream().forEach((Parameter param) -> {
+                NodeParam _param = new NodeParam();
+                _param.setId(param.getId());
+                _param.setName(param.getName());
+                _param.setClassName(param.getType().getCanonicalName());
+                _param.setValue(param.getValue());
+                _params.getParams().put(param.getId(), _param);
+            });
+            procGnode.setParams(_params);
+
+            // Setting inputs
+            List<? extends Input> inputs = proc.getInputs();
+            NodeInputs nodeInputs = new NodeInputs();
+            nodeInputs.setSources(new HashMap<>());
+            inputs.stream().forEach((Input input) -> {
+                Source inputSource = input.getSource();
+                NodeInput nodeInput = new NodeInput();
+                nodeInput.setAttributes(new HashMap());
+                nodeInput.setId(input.getId());
+                nodeInput.setName(input.getName());
+                nodeInput.setSourceId(inputSource.getId().toString());
+                nodeInput.setSourceClassName(inputSource.getClass().getCanonicalName());
+                List<Attribute> attrs = inputSource.getOutput().getAttributes();
+                NodeAttributes nodeattrs = new NodeAttributes();
+                nodeattrs.setAttributes(new HashMap<>());
+                attrs.stream().forEach((Attribute attr) -> {
+                    NodeAttribute nodeattr = new NodeAttribute();
+                    nodeattr.setClassName(attr.getType().getCanonicalName());
+                    nodeattr.setName(attr.getName());
+                    nodeattrs.getAttributes().put(attr.getName(), nodeattr);
+                });
+                nodeInput.setAttributes(nodeattrs.getAttributes());
+                nodeInputs.getSources().put(input.getName(), nodeInput);
+                // Create edge
+                Edge edge = new Edge();
+                edge.setLabel(Vocabulary.MODEL);
+                edge.setRelation(input.getName());
+                edge.setDirected(true);
+                edge.setSource(inputSource.getClass().getCanonicalName() + ":" + inputSource.getId().toString());
+                edge.setTarget(proc.getClass().getCanonicalName() + ":" + proc.getId().toString());
+                edges.add(edge);
+            });            
+            procGnode.setInput(nodeInputs);
+            
+            Output output = proc.getOutput();
+            List<Attribute> attrs = proc.getOutput().getAttributes();
+            NodeOutput nodeOutput = new NodeOutput();
+            nodeOutput.setName(output.getName());
+            nodeOutput.setId(output.getId());
+
+            NodeAttributes nodeattrs = new NodeAttributes();
+            nodeattrs.setAttributes(new HashMap<>());
+            attrs.stream().forEach((Attribute attr) -> {
+                NodeAttribute nodeattr = new NodeAttribute();
+                nodeattr.setName(attr.getName());
+                nodeattr.setClassName(attr.getType().getCanonicalName());
+                nodeattrs.getAttributes().put(attr.getName(), nodeattr);
+            });
+            nodeOutput.setAttributes(nodeattrs.getAttributes());
+            procGnode.setOutput(nodeOutput);
+            nodes.add(procGnode);
+        });
+
+        // Sinks
+        //======================================================================
+        Set<ExternalSink> sinks = model.getExternalSinks();
+        sinks.stream().forEach((ExternalSink sink) -> {
+            Gnode sinkGnode = new Gnode();
+            sinkGnode.setId(sink.getId().toString());
+            sinkGnode.setLabel(Vocabulary.SINK);
+            sinkGnode.setType(sink.getClass().getCanonicalName());
+            sinkGnode.setTransportUrl(model.getTransportUrl());
+
+            Set<Parameter> params = sink.getParameters();
+            NodeParams _params = new NodeParams();
+            _params.setParams(new HashMap<>());
+            params.stream().forEach((Parameter param) -> {
+                NodeParam _param = new NodeParam();
+                _param.setId(param.getId());
+                _param.setName(param.getName());
+                _param.setClassName(param.getType().getCanonicalName());
+                _param.setValue(param.getValue());
+                _params.getParams().put(param.getId(), _param);
+            });
+            sinkGnode.setParams(_params);
+
+            // Setting inputs
+            List<? extends Input> inputs = sink.getInputs();
+            NodeInputs nodeInputs = new NodeInputs();
+            nodeInputs.setSources(new HashMap<>());
+            inputs.stream().forEach((Input input) -> {
+                Source inputSource = input.getSource();
+                NodeInput nodeInput = new NodeInput();
+                nodeInput.setAttributes(new HashMap());
+                nodeInput.setId(input.getId());
+                nodeInput.setName(input.getName());
+                nodeInput.setSourceId(inputSource.getId().toString());
+                nodeInput.setSourceClassName(inputSource.getClass().getCanonicalName());
+                List<Attribute> attrs = inputSource.getOutput().getAttributes();
+                NodeAttributes nodeattrs = new NodeAttributes();
+                nodeattrs.setAttributes(new HashMap<>());
+                attrs.stream().forEach((Attribute attr) -> {
+                    NodeAttribute nodeattr = new NodeAttribute();
+                    nodeattr.setClassName(attr.getType().getCanonicalName());
+                    nodeattr.setName(attr.getName());
+                    nodeattrs.getAttributes().put(attr.getName(), nodeattr);
+                });
+                nodeInput.setAttributes(nodeattrs.getAttributes());
+                nodeInputs.getSources().put(input.getName(), nodeInput);
+                // Create edge
+                Edge edge = new Edge();
+                edge.setLabel(Vocabulary.MODEL);
+                edge.setRelation(input.getName());
+                edge.setDirected(true);
+                edge.setSource(inputSource.getClass().getCanonicalName() + ":" + inputSource.getId().toString());
+                edge.setTarget(sink.getClass().getCanonicalName() + ":" + sink.getId().toString());
+                edges.add(edge);
+            });            
+            sinkGnode.setInput(nodeInputs);
+            nodes.add(sinkGnode);
+        });
+        graph.setNodes(nodes);
+        graph.setEdges(edges);
+
+        return graph;
+    }
 }

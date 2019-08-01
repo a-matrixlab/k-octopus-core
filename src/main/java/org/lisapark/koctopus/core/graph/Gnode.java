@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.core.graph;
 
+import org.lisapark.koctopus.core.graph.api.INode;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,80 +26,7 @@ import com.google.gson.JsonParser;
  *
  * @author alexmy
  */
-public final class Gnode implements INode<String, String, String, String, String> {
-
-    public String id;
-    public String type;
-    public String label;
-    private String transportUrl;
-    private String layout;
-    private String params;
-    private String input;
-    private String output;
-    
-    /**
-     * @return the params
-     */
-    @Override
-    public String getParams() {
-        return params;
-    }
-
-    /**
-     * @return the input
-     */
-    @Override
-    public String getInput() {
-        return input;
-    }
-
-    /**
-     * @return the output
-     */
-    @Override
-    public String getOutput() {
-        return output;
-    }
-
-    /**
-     * @return the layout
-     */
-    @Override
-    public String getLayout() {
-        return layout;
-    }
-
-    /**
-     * @param layout the layout to set
-     */
-    @Override
-    public void setLayout(String layout) {
-        this.layout = layout;
-    }
-
-    /**
-     * @param params the params to set
-     */
-    @Override
-    public void setParams(String params) {
-        this.params = params;
-    }
-
-    /**
-     * @param input the input to set
-     */
-    @Override
-    public void setInput(String input) {
-        this.input = input;
-    }
-
-    /**
-     * @param output the output to set
-     */
-    @Override
-    public void setOutput(String output) {
-        this.output = output;
-    }
+public final class Gnode implements INode<NodePassport, NodeParams, NodeInputs, NodeOutput> {
 
     /**
      * @return the id
@@ -146,18 +74,6 @@ public final class Gnode implements INode<String, String, String, String, String
     @Override
     public void setLabel(String label) {
         this.label = label;
-    } 
-
-    @Override
-    public JsonObject toJson() {
-        JsonParser parser = new JsonParser();
-        JsonElement elem = parser.parse(new Gson().toJson(this, this.getClass()));
-        return elem.getAsJsonObject();
-    }
-
-    @Override
-    public INode fromJson(String json) {
-        return new Gson().fromJson(json, this.getClass());
     }
 
     /**
@@ -172,5 +88,90 @@ public final class Gnode implements INode<String, String, String, String, String
      */
     public void setTransportUrl(String transportUrl) {
         this.transportUrl = transportUrl;
+    }
+
+    /**
+     * @return the passport
+     */
+    @Override
+    public NodePassport getPassport() {
+        return passport;
+    }
+
+    /**
+     * @param passport the passport to set
+     */
+    @Override
+    public void setPassport(NodePassport passport) {
+        this.passport = passport;
+    }
+
+    /**
+     * @return the params
+     */
+    @Override
+    public NodeParams getParams() {
+        return params;
+    }
+
+    /**
+     * @param params the params to set
+     */
+    @Override
+    public void setParams(NodeParams params) {
+        this.params = params;
+    }
+
+    /**
+     * @return the input
+     */
+    @Override
+    public NodeInputs getInput() {
+        return input;
+    }
+
+    /**
+     * @param input the input to set
+     */
+    @Override
+    public void setInput(NodeInputs input) {
+        this.input = input;
+    }
+
+    /**
+     * @return the output
+     */
+    @Override
+    public NodeOutput getOutput() {
+        return output;
+    }
+
+    /**
+     * @param output the output to set
+     */
+    @Override
+    public void setOutput(NodeOutput output) {
+        this.output = output;
+    }
+
+    private String id;
+    private String type;
+    private String label;
+    private String transportUrl;
+    private NodePassport passport;
+    private NodeParams params;
+    private NodeInputs input;
+    private NodeOutput output;
+   
+    @Override
+    public JsonObject toJson() {
+        JsonParser parser = new JsonParser();
+        JsonElement elem = parser.parse(new Gson().toJson(this, this.getClass()));
+        return elem.getAsJsonObject();
+    }
+
+    @Override
+    public INode fromJson(String json) {
+        return new Gson().fromJson(json, this.getClass());
     }
 }

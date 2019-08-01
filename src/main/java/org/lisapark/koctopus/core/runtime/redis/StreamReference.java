@@ -5,26 +5,27 @@
  */
 package org.lisapark.koctopus.core.runtime.redis;
 
-import org.lisapark.koctopus.core.event.EventType;
+import java.util.Map;
+import org.lisapark.koctopus.core.graph.NodeAttribute;
 
 /**
  *
  * @author alexmy
  */
-public class StreamReference {
+public class StreamReference  {
 
     private String referenceClass;
     private String referenceId;
-    private EventType eventtype;
+    private Map<String, NodeAttribute> attributes;
 
     public StreamReference() {
-        this.eventtype = new EventType();
+        
     }
 
-    public StreamReference(String referenceClass, String referenceId, EventType eventtype) {
+    public StreamReference(String referenceClass, String referenceId, Map<String, NodeAttribute> attributes) {
         this.referenceClass = referenceClass;
         this.referenceId = referenceId;
-        this.eventtype = eventtype;
+        this.attributes = attributes;
     }
 
     /**
@@ -58,14 +59,14 @@ public class StreamReference {
     /**
      * @return the sourceAttributes
      */
-    public EventType getEventType() {
-        return eventtype;
+    public Map<String, NodeAttribute> getAttributes() {
+        return attributes;
     }
 
     /**
-     * @param eventtype
+     * @param attributes
      */
-    public void setEventType(EventType eventtype) {
-        this.eventtype = eventtype;
+    public void setAttributes(Map<String, NodeAttribute> attributes) {
+        this.attributes = attributes;
     }
 }

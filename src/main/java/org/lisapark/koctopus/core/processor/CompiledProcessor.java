@@ -36,7 +36,7 @@ public abstract class CompiledProcessor<MEMORY_TYPE> {
     private final ProcessorOutput output;
     private final UUID id;
 
-    protected CompiledProcessor(Processor<MEMORY_TYPE> processor) {
+    protected CompiledProcessor(AbstractProcessor<MEMORY_TYPE> processor) {
         this.id = processor.getId();
         this.inputs = processor.getInputs();
         this.joins = processor.getJoins();
