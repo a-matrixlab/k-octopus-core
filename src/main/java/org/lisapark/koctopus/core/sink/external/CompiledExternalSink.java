@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.lisapark.koctopus.core.runtime.SinkContext;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -47,7 +47,7 @@ public abstract class CompiledExternalSink {
         return ImmutableList.copyOf(inputs);
     }
 
-    public abstract void processEvent(StreamProcessingRuntime runtime, Map<Integer, Event> eventsByInputId);
+    public abstract void processEvent(StreamingRuntime runtime, Map<Integer, Event> eventsByInputId);
     
     public abstract void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId);
 }

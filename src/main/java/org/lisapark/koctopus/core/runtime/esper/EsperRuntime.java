@@ -37,7 +37,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)

@@ -35,13 +35,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.lisapark.koctopus.core.event.Event;
-import org.lisapark.koctopus.core.runtime.StreamProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
  *
  * @author alexmy
  */
-public class RedisRuntime implements StreamProcessingRuntime<StreamMessage<String, String>> {
+public class RedisRuntime implements StreamingRuntime<StreamMessage<String, String>> {
 
     private final int threadPoolSize = 1;
 

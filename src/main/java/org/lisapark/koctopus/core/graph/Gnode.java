@@ -21,12 +21,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
 
 /**
  *
  * @author alexmy
  */
 public final class Gnode implements INode<NodePassport, NodeParams, NodeInputs, NodeOutput> {
+    
+    public Gnode(){
+        this.color = GraphVocabulary.UNTOUCHED;
+    }
 
     /**
      * @return the id
@@ -158,6 +163,7 @@ public final class Gnode implements INode<NodePassport, NodeParams, NodeInputs, 
     private String type;
     private String label;
     private String transportUrl;
+    private String color;
     private NodePassport passport;
     private NodeParams params;
     private NodeInputs input;
@@ -173,5 +179,19 @@ public final class Gnode implements INode<NodePassport, NodeParams, NodeInputs, 
     @Override
     public INode fromJson(String json) {
         return new Gson().fromJson(json, this.getClass());
+    }
+
+    /**
+     * @return the color
+     */
+    public String getColor() {
+        return color;
+    }
+
+    /**
+     * @param color the color to set
+     */
+    public void setColor(String color) {
+        this.color = color;
     }
 }

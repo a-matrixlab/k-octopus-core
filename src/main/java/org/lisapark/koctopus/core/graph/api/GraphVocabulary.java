@@ -27,7 +27,7 @@ public interface GraphVocabulary {
     public Integer BACK_LOG = 2;
     public Integer CANCEL = 3;
     
-    public String START_NODE = "start-node";
+    public String START_NODE = "SOURCE";
 
     public String SOURCE_DB_URL = "source-db-url";
     public String TARGET_DB_URL = "target-db-url";
