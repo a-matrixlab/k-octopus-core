@@ -25,6 +25,7 @@ import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.event.Attribute;
+import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
 import org.lisapark.koctopus.core.graph.api.Vocabulary;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
@@ -145,18 +146,20 @@ public class GraphUtils {
         Graph graph = new Graph();
 
         graph.setId(model.getId().toString());
-        graph.setLabel(model.getName());
-        graph.setType(Vocabulary.PROCESSING_GRAPH);
+        graph.setLabel(Vocabulary.MODEL);
+        graph.setType(Vocabulary.OCTOPUS_RUNNER);
+        graph.setTransportUrl(model.getTransportUrl());
+        graph.setColor(GraphVocabulary.UNTOUCHED);
         graph.setDirected(Boolean.TRUE);
 
         NodeParams gparams = new NodeParams();
-        gparams.setParams(new HashMap<>());
-        NodeParam nodeparam = new NodeParam();
-        nodeparam.setId(0);
-        nodeparam.setName(Vocabulary.TRANSPORT_URL);
-        nodeparam.setClassName(new String().getClass().getCanonicalName());
-        nodeparam.setValue(model.getTransportUrl());
-        gparams.getParams().put(0, nodeparam);
+//        gparams.setParams(new HashMap<>());
+//        NodeParam nodeparam = new NodeParam();
+//        nodeparam.setId(0);
+//        nodeparam.setName(Vocabulary.TRANSPORT_URL);
+//        nodeparam.setClassName(new String().getClass().getCanonicalName());
+//        nodeparam.setValue(model.getTransportUrl());
+//        gparams.getParams().put(0, nodeparam);
         graph.setParams(gparams);
         
         List<Gnode> nodes = new ArrayList<>();

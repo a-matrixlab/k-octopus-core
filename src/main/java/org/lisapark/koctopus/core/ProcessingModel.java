@@ -245,6 +245,35 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         });
     }
 
+    @Override
+    public Reproducible newInstance() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Copyable copyOf() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     * @return the transportUrl
+     */
+    public String getTransportUrl() {
+        return transportUrl;
+    }
+
+    /**
+     * @param transportUrl the transportUrl to set
+     */
+    public void setTransportUrl(String transportUrl) {
+        this.transportUrl = transportUrl;
+    }
+
+    @Override
+    public Reproducible newInstance(Gnode gnode) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
     /**
      *
      * @return
@@ -303,41 +332,5 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         });
 
         return sinks;
-    }
-
-    @Override
-    public Reproducible newInstance() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Copyable copyOf() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    // There is default implementation of this method in Reproducible interface
-    //==========================================================================
-//    @Override
-//    public Reproducible newInstance(String json) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-
-    /**
-     * @return the transportUrl
-     */
-    public String getTransportUrl() {
-        return transportUrl;
-    }
-
-    /**
-     * @param transportUrl the transportUrl to set
-     */
-    public void setTransportUrl(String transportUrl) {
-        this.transportUrl = transportUrl;
-    }
-
-    @Override
-    public Reproducible newInstance(Gnode gnode) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -32,33 +32,19 @@ import org.openide.util.Exceptions;
  *
  * @author alexmy
  */
-public class BaseController {
+public class OctopusRunner extends AbstractRunner<String, Gnode> {
 
-    enum Status {
-        SUCCESS(200),
-        ERROR(400);
-        private final int statusCode;
-
-        Status(int statusCode) {
-            this.statusCode = statusCode;
-        }
-
-        public int getStatusCode() {
-            return this.statusCode;
-        }
+    public OctopusRunner() {
+        super();
     }
 
-    /**
-     *
-     * @param json
-     * @return
-     * @throws ValidationException
-     * @throws ProcessingException
-     * @throws java.lang.InterruptedException
-     */
-    public String process(String json) throws ValidationException, ProcessingException, InterruptedException {
-        String result = null;
-        Gnode gnode = (Gnode) new Gnode().fromJson(json);
+    public OctopusRunner(Graph graph) {
+        super(graph);
+    }
+
+    @Override
+    public String processNode(Gnode gnode, boolean forward) {
+
         String trnsUrl = gnode.getTransportUrl();
         RedisRuntime runtime = new RedisRuntime(trnsUrl, System.out, System.err);
 
@@ -69,7 +55,6 @@ public class BaseController {
                     type = gnode.getType();
                     ExternalSource sourceIns = (ExternalSource) Class.forName(type).newInstance();
                     ExternalSource source = (ExternalSource) sourceIns.newInstance(gnode);
-                    result = new Gson().toJson(gnode);
                     source.compile(source).startProcessingEvents(runtime);
 
                     break;
@@ -77,7 +62,6 @@ public class BaseController {
                     type = gnode.getType();
                     AbstractProcessor processorIns = (AbstractProcessor) Class.forName(type).newInstance();
                     AbstractProcessor processor = (AbstractProcessor) processorIns.newInstance(gnode);
-                    result = new Gson().toJson(gnode);
                     processor.compile(processor).processEvent(runtime);
 
                     break;
@@ -85,26 +69,15 @@ public class BaseController {
                     type = gnode.getType();
                     ExternalSink sinkIns = (ExternalSink) Class.forName(type).newInstance();
                     ExternalSink sink = (ExternalSink) sinkIns.newInstance(gnode);
-                    result = new Gson().toJson(gnode);
                     sink.compile(sink).processEvent(runtime, null);
-
-                    break;
-                case Vocabulary.MODEL:
-                    Graph graph = (Graph) new Graph().fromJson(json);
-                    type = graph.getType();
-                    AbstractRunner runner = (AbstractRunner) Class.forName(type).newInstance();
-                    runner.setGraph(graph);
-                    runner.init();
-                    result = new Gson().toJson((Gnode)graph, Gnode.class);
-                    runner.execute();
 
                     break;
                 default:
                     break;
             }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ValidationException | ProcessingException ex) {
             Exceptions.printStackTrace(ex);
         }
-        return result;
+        return new Gson().toJson(gnode);
     }
 }

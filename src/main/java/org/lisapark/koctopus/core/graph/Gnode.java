@@ -27,7 +27,7 @@ import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
  *
  * @author alexmy
  */
-public final class Gnode implements INode<NodePassport, NodeParams, NodeInputs, NodeOutput> {
+public  class Gnode implements INode<NodePassport, NodeParams, NodeInputs, NodeOutput> {
     
     public Gnode(){
         this.color = GraphVocabulary.UNTOUCHED;
@@ -84,6 +84,7 @@ public final class Gnode implements INode<NodePassport, NodeParams, NodeInputs, 
     /**
      * @return the transportUrl
      */
+    @Override
     public String getTransportUrl() {
         return transportUrl;
     }
@@ -91,6 +92,7 @@ public final class Gnode implements INode<NodePassport, NodeParams, NodeInputs, 
     /**
      * @param transportUrl the transportUrl to set
      */
+    @Override
     public void setTransportUrl(String transportUrl) {
         this.transportUrl = transportUrl;
     }
@@ -184,6 +186,7 @@ public final class Gnode implements INode<NodePassport, NodeParams, NodeInputs, 
     /**
      * @return the color
      */
+    @Override
     public String getColor() {
         return color;
     }
@@ -191,6 +194,7 @@ public final class Gnode implements INode<NodePassport, NodeParams, NodeInputs, 
     /**
      * @param color the color to set
      */
+    @Override
     public void setColor(String color) {
         this.color = color;
     }

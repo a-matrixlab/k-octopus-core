@@ -1,7 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2013 Lisa Park, Inc. (www.lisa-park.net)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.lisapark.koctopus.core.runtime;
 
@@ -19,14 +30,14 @@ import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.Graph;
 import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
 import scala.Tuple2;
+
 /**
  *
  * @author alexmylnikov
- * @param <T>
+ * @param <K>
+ * @param <V>
  */
-public abstract class AbstractRunner<T> {
-    
-    BaseController processor;
+public abstract class AbstractRunner<K, V> {
 
     // In case of Db meta data Graph nodeResults map serves as a temporary storage for PK of the corresponding Table.
     // The initial capacity can be set to the Graph node collection size. However this map will hold only PK for
@@ -38,42 +49,60 @@ public abstract class AbstractRunner<T> {
     //
     // In case of very large result sets nodeResults map can hold references to the external data store.
     //   
-    Map<String, Object> env;
+//    Map<String, Object> env;
     Map<String, Gnode> nodeMap;
-    Map<String, Tuple2<Integer, T>> nodeResults;
+    Map<String, Tuple2<K, V>> nodeResults;
     Map<String, ConcurrentLinkedQueue<Gnode>> colorBuckets;
     Map<String, Set<Edge>> forwardRels;
     Map<String, Set<Edge>> backwardRels;
-    
+
     String delim = ":";
 
     private Graph graph;
 
     /**
-     * Defines processing for the Start node or nodes. The Start node(s) should be provided by the graph object.
-     * Eventually this execute method will call the next abstract method - processNode( . . .). At least this is a
-     * recommended way of implementing these methods.
-     *
-     * @param processor
-     * @param forward
-     */
-    public abstract void processStartNode(BaseController processor, boolean forward);
-
-    /**
-     * This is the place where the real data processing happened. Processing is changing state of the node: - BACK_LOG,
-     * if node needs some additional work to be completed; - COMPLETE, if node processing is done and complete.
+     * This is the place where the real data processing happened.Processing is
+     * changing state of the node: - BACK_LOG, if node needs some additional
+     * work to be completed; - COMPLETE, if node processing is done and
+     * complete.
      *
      * @param node
-     * @param processor
      * @param forward
+     * @return
      */
-    public abstract void processNode(Gnode node, BaseController processor, boolean forward);
+    public abstract String processNode(Gnode node, boolean forward);
+
+    public AbstractRunner() {
+    }
+
+    public AbstractRunner(Graph graph) {
+        this.graph = graph;
+        init();
+    }
+
+    public AbstractRunner(String json) {
+        this.graph = new Graph().fromJson(json);
+        init();
+    }
+
+    public AbstractRunner(Graph graph, Map<String, Object> env) {
+//        this.env = new HashMap<>(env);
+        this.graph = graph;
+        init();
+    }
+
+    public AbstractRunner(String json, Map<String, Object> env) {
+//        this.env = new HashMap<>(env);
+        this.graph = new Graph().fromJson(json);
+        init();
+    }
 
     /**
-     * Provides initialization of a new and restoration of the interrupted processing
+     * Provides initialization of a new and restoration of the interrupted
+     * processing
      */
-    private void init() {
-//        env = new HashMap<>();
+    public final void init() {
+
         getGraph().getNodes().stream().forEach((Gnode node) -> {
             String nodeColor = node.getColor();
             if (nodeColor.equalsIgnoreCase(GraphVocabulary.GREY)) {
@@ -85,15 +114,20 @@ public abstract class AbstractRunner<T> {
                 getColorBuckets().get(GraphVocabulary.WHITE).add(node);
             } else if (nodeColor.equalsIgnoreCase(GraphVocabulary.RED)) {
                 getColorBuckets().get(GraphVocabulary.RED).add(node);
-            } else if ((GraphVocabulary.START_NODE == null ? (node.getLabel()) == null : GraphVocabulary.START_NODE.equals(node.getLabel()))
-                    && GraphVocabulary.START_NODE != null) {
+            } else if (GraphVocabulary.START_NODE.equalsIgnoreCase(node.getLabel())) {
                 // Check if the node is a START_NODE. If we got here, it means that we are just started,
                 // in this case run processStartNode method.
                 // This method will extract sample data from provided data source (in Env map)
                 // by applying a specified sampling strategy
                 markNode(node, GraphVocabulary.GREY);
-                processStartNode(processor, true);
-                markNodeCompleteBlack(node);
+                processNode(node, true);
+                K status = getNodeResults().get(node.getId())._1();
+
+                if (status == GraphVocabulary.COMPLETE) {
+                    markNodeCompleteBlack(node);
+                } else {
+                    markNode(node, GraphVocabulary.RED);
+                }
             } else if (nodeColor.equalsIgnoreCase(GraphVocabulary.UNTOUCHED)) {
                 getColorBuckets().get(GraphVocabulary.UNTOUCHED).add(node);
             }
@@ -112,13 +146,13 @@ public abstract class AbstractRunner<T> {
             while (!whiteBucket.isEmpty()) {
                 Gnode nodeWhite = (Gnode) whiteBucket.poll();
                 if (nodeWhite != null) {
-                    String nodeColor =  nodeWhite.getColor();
+                    String nodeColor = nodeWhite.getColor();
                     // Check for the node color - it maybe changed while staying in the queue
                     if (GraphVocabulary.WHITE.equalsIgnoreCase(nodeColor)) {
                         // TODO: move markNode to the processNode body
 //                        markNode(nodeWhite, GraphVocabulary.GREY);
-                        processNode(nodeWhite, processor, true);
-                        int status = getNodeResults().get(nodeWhite.getId())._1();
+                        processNode(nodeWhite, true);
+                        K status = getNodeResults().get(nodeWhite.getId())._1();
 
                         if (status == GraphVocabulary.COMPLETE) {
                             markNodeCompleteBlack(nodeWhite);
@@ -131,13 +165,13 @@ public abstract class AbstractRunner<T> {
             while (!blueBucket.isEmpty()) {
                 Gnode nodeBlue = (Gnode) blueBucket.poll();
                 if (nodeBlue != null) {
-                    String nodeColor =  nodeBlue.getColor();
+                    String nodeColor = nodeBlue.getColor();
                     // Check for the node color - it could be chaged while staying in the queue
                     if (GraphVocabulary.BLUE.equalsIgnoreCase(nodeColor)) {
                         // TODO: move markNode to the processNode body
 //                        markNode(nodeBlue, GraphVocabulary.GREY);
-                        processNode(nodeBlue, processor, false);
-                        int status = getNodeResults().get(nodeBlue.getId())._1();
+                        processNode(nodeBlue, false);
+                        K status = getNodeResults().get(nodeBlue.getId())._1();
                         if (status == GraphVocabulary.COMPLETE) {
                             markNodeCompleteBlack(nodeBlue);
                         } else {
@@ -151,7 +185,7 @@ public abstract class AbstractRunner<T> {
             while (!redBucket.isEmpty()) {
                 Gnode node = (Gnode) redBucket.poll();
                 if (node != null) {
-                    String nodeColor =  node.getColor();
+                    String nodeColor = node.getColor();
                     // Check for the node color - it maybe changed while staying in the queue
                     if (GraphVocabulary.RED.equalsIgnoreCase(nodeColor)) {
                         Set<Edge> inEdges = this.getBackwardRel().get(node.getId());
@@ -160,12 +194,11 @@ public abstract class AbstractRunner<T> {
                             while (iterator.hasNext()) {
                                 Edge edge = iterator.next();
                                 String[] source = edge.getSource().split(delim);
-                                Gnode _node = getNodeMap().get(source[0]);
+                                Gnode _node = getNodeMap().get(source[1]);
                                 // At this point nodes can be only: BLACK (complete), 
                                 // RED (unfinished) or UNTOUCHED. Mark all untouched nodes to BLUE
-                                String _nodeColor =  _node.getColor();
-                                if (GraphVocabulary.UNTOUCHED
-                                        .equalsIgnoreCase(_nodeColor)) {
+                                String _nodeColor = _node.getColor();
+                                if (GraphVocabulary.UNTOUCHED.equalsIgnoreCase(_nodeColor)) {
                                     markNode(_node, GraphVocabulary.BLUE);
                                 }
                             }
@@ -181,7 +214,8 @@ public abstract class AbstractRunner<T> {
     }
 
     /**
-     * Marks nodeWhite to the specified color. Important. Node should reference to the nodeWhite instance in the graph.
+     * Marks nodeWhite to the specified color. Important. Node should reference
+     * to the nodeWhite instance in the graph.
      *
      * @param node
      * @param color
@@ -200,7 +234,7 @@ public abstract class AbstractRunner<T> {
             set.stream().forEach((edge) -> {
                 String[] target = edge.getTarget().split(delim);
                 Gnode _node = getNodeMap().get(target[0]);
-                String _nodeColor =  _node.getColor();
+                String _nodeColor = _node.getColor();
                 if (GraphVocabulary.UNTOUCHED.equalsIgnoreCase(_nodeColor)) {
                     markNode(_node, GraphVocabulary.WHITE);
                 }
@@ -224,7 +258,7 @@ public abstract class AbstractRunner<T> {
         if (set != null) {
             set.stream().forEach((edge) -> {
                 String[] target = edge.getTarget().split(delim);
-                Gnode _node = getNodeMap().get(target[0]);
+                Gnode _node = getNodeMap().get(target[1]);
                 markNode(_node, GraphVocabulary.WHITE);
             });
         }
@@ -242,36 +276,10 @@ public abstract class AbstractRunner<T> {
 
     private void moveNode(Gnode node, String color) {
         // 1. Remove nodeWhite from current bucket
-        String curColor =  node.getColor();
+        String curColor = node.getColor();
         getColorBuckets().get(curColor).remove(node);
         // 2. Add it to the new color bucket
         getColorBuckets().get(color).add(node);
-    }
-
-    public AbstractRunner(Graph graph, BaseController processor) {
-        this.processor = processor;
-        this.graph = graph;
-        init();
-    }
-
-    public AbstractRunner(String json, BaseController processor) {
-        this.processor = processor;
-        this.graph = new Graph().fromJson(json);
-        init();
-    }
-
-    public AbstractRunner(Graph graph, BaseController processor, Map<String, Object> env) {
-        this.env = new HashMap<>(env);
-        this.processor = processor;
-        this.graph = graph;
-        init();
-    }
-
-    public AbstractRunner(String json, BaseController processor, Map<String, Object> env) {
-        this.env = new HashMap<>(env);
-        this.processor = processor;
-        this.graph = new Graph().fromJson(json);
-        init();
     }
 
     public Map<String, ConcurrentLinkedQueue<Gnode>> getColorBuckets() {
@@ -303,29 +311,15 @@ public abstract class AbstractRunner<T> {
     /**
      * @return the nodeResults
      */
-    public Map<String, Tuple2<Integer, T>> getNodeResults() {
+    public Map<String, Tuple2<K, V>> getNodeResults() {
         return nodeResults == null ? nodeResults = new HashMap<>() : nodeResults;
     }
 
     /**
      * @param nodeResults the nodeResults to set
      */
-    public void setNodeResults(ConcurrentHashMap<String, Tuple2<Integer, T>> nodeResults) {
+    public void setNodeResults(ConcurrentHashMap<String, Tuple2<K, V>> nodeResults) {
         this.nodeResults = nodeResults;
-    }
-
-    /**
-     * @return the env
-     */
-    public Map<String, Object> getEnv() {
-        return env == null ? new HashMap<>() : env;
-    }
-
-    /**
-     * @param env the env to set
-     */
-    public void setEnv(Map<String, Object> env) {
-        this.env = env;
     }
 
     /**
@@ -348,8 +342,8 @@ public abstract class AbstractRunner<T> {
             this.forwardRels = new HashMap<>();
             edges.stream().forEach((edge) -> {
                 String[] source = edge.getSource().split(delim);
-                if (forwardRels.get(source[0]) == null) {
-                    forwardRels.put(source[0], new HashSet<>());
+                if (forwardRels.get(source[1]) == null) {
+                    forwardRels.put(source[1], new HashSet<>());
                 }
                 forwardRels.get(source[0]).add(edge);
             });
@@ -362,26 +356,26 @@ public abstract class AbstractRunner<T> {
             List<Edge> edges = getGraph().getEdges();
             this.backwardRels = new HashMap<>();
             edges.stream().forEach((edge) -> {
-                String[] source = edge.getTarget().split(delim);
-                if (backwardRels.get(source[0]) == null) {
-                    backwardRels.put(source[0], new HashSet<>());
+                String[] target = edge.getTarget().split(delim);
+                if (backwardRels.get(target[1]) == null) {
+                    backwardRels.put(target[1], new HashSet<>());
                 }
-                backwardRels.get(source[0]).add(edge);
+                backwardRels.get(target[0]).add(edge);
             });
         }
         return backwardRels;
     }
 
     public boolean hasUntouchedInNodes(Gnode node) {
-        String label = node.getId();
-        Set<Edge> set = getBackwardRel().get(label);
+        String id = node.getId();
+        Set<Edge> set = getBackwardRel().get(id);
 
         return checkUntouched(set);
     }
 
     public boolean hasUntouchedOutNodes(Gnode node) {
-        String label = node.getId();
-        Set<Edge> set = getForwardRel().get(label);
+        String id = node.getId();
+        Set<Edge> set = getForwardRel().get(id);
 
         return checkUntouched(set);
     }
@@ -392,8 +386,8 @@ public abstract class AbstractRunner<T> {
             List<Edge> iterator = new ArrayList<>(set);
             for (Edge edge : iterator) {
                 String[] source = edge.getSource().split(delim);
-                Gnode _node = getNodeMap().get(source[0]);
-                String _nodeColor =  _node.getColor();
+                Gnode _node = getNodeMap().get(source[1]);
+                String _nodeColor = _node.getColor();
                 if (GraphVocabulary.UNTOUCHED.equalsIgnoreCase(_nodeColor)) {
                     bool = true;
                     break;

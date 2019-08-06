@@ -28,40 +28,22 @@ import com.google.gson.JsonObject;
  * @param <V4>
  */
 public interface INode<V1, V2, V3, V4> {
-    /**
-     * @return the id
-     */
+    
     public String getId();
-
-    /**
-     * @param id the id to set
-     */
     public void setId(String id);
-
-    /**
-     * @return the type
-     */
+    
     public String getType();
-
-    /**
-     * @param type the type to set
-     */
     public void setType(String type);
 
-    /**
-     * @return the label
-     */
     public String getLabel();
-
-    /**
-     * @param label the label to set
-     */
     public void setLabel(String label);
+    
+    public String getTransportUrl();
+    public void setTransportUrl(String transportUrl);
 
-    /**
-     * @return the metadata as a JSON string of 
-     * HashMultimap<String, Pair<String, String>>
-     */
+    public String getColor();
+    public void setColor(String color);
+    
     public V1 getPassport();    
     public V2 getParams();    
     public V3 getInput();    

@@ -16,7 +16,6 @@
  */
 package org.lisapark.koctopus.core.graph;
 
-import org.lisapark.koctopus.core.graph.api.INode;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,85 +26,12 @@ import java.util.List;
  *
  * @author alexmy
  */
-public final class Graph implements INode<NodePassport, NodeParams, NodeInputs, NodeOutput> {
-
-    private String id;
-    private String type;
-    private String label;
-
-    private NodePassport passport;
-    private NodeParams params;
-    private NodeInputs input;
-    private NodeOutput output;
-
+public final class Graph extends Gnode {
+    
     private Boolean directed;
 
     private List<Gnode> nodes;
-    private List<Edge> edges;
-
-    /**
-     * @return the passport
-     */
-    @Override
-    public NodePassport getPassport() {
-        return passport;
-    }
-
-    /**
-     * @param passport the passport to set
-     */
-    @Override
-    public void setPassport(NodePassport passport) {
-        this.passport = passport;
-    }
-
-    /**
-     * @return the params
-     */
-    @Override
-    public NodeParams getParams() {
-        return params;
-    }
-
-    /**
-     * @param params the params to set
-     */
-    @Override
-    public void setParams(NodeParams params) {
-        this.params = params;
-    }
-
-    /**
-     * @return the input
-     */
-    @Override
-    public NodeInputs getInput() {
-        return input;
-    }
-
-    /**
-     * @param input the input to set
-     */
-    @Override
-    public void setInput(NodeInputs input) {
-        this.input = input;
-    }
-
-    /**
-     * @return the output
-     */
-    @Override
-    public NodeOutput getOutput() {
-        return output;
-    }
-
-    /**
-     * @param output the output to set
-     */
-    @Override
-    public void setOutput(NodeOutput output) {
-        this.output = output;
-    }
+    private List<Edge> edges;    
 
     /**
      * @return the directed
@@ -119,38 +45,6 @@ public final class Graph implements INode<NodePassport, NodeParams, NodeInputs, 
      */
     public void setDirected(Boolean directed) {
         this.directed = directed;
-    }
-
-    /**
-     * @return the type
-     */
-    @Override
-    public String getType() {
-        return type;
-    }
-
-    /**
-     * @param type the type to set
-     */
-    @Override
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    /**
-     * @return the label
-     */
-    @Override
-    public String getLabel() {
-        return label;
-    }
-
-    /**
-     * @param label the label to set
-     */
-    @Override
-    public void setLabel(String label) {
-        this.label = label;
     }
 
     /**
@@ -179,22 +73,6 @@ public final class Graph implements INode<NodePassport, NodeParams, NodeInputs, 
      */
     public void setEdges(List<Edge> edges) {
         this.edges = edges;
-    }
-
-    /**
-     * @return the id
-     */
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * @param id the id to set
-     */
-    @Override
-    public void setId(String id) {
-        this.id = id;
     }
     
     @Override
