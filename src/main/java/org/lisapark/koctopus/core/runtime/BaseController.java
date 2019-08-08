@@ -86,7 +86,7 @@ public class BaseController {
                     ExternalSink sinkIns = (ExternalSink) Class.forName(type).newInstance();
                     ExternalSink sink = (ExternalSink) sinkIns.newInstance(gnode);
                     result = new Gson().toJson(gnode);
-                    sink.compile(sink).processEvent(runtime, null);
+                    sink.compile(sink).processEvent(runtime);
 
                     break;
                 case Vocabulary.MODEL:

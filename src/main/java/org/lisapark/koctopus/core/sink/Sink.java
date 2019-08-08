@@ -22,6 +22,7 @@ import org.lisapark.koctopus.core.Persistable;
 import org.lisapark.koctopus.core.source.Source;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -34,4 +35,6 @@ public interface Sink extends Node {
     boolean isConnectedTo(Source source);
 
     void disconnect(Source source);
+    
+    Node setId(UUID id);
 }

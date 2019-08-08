@@ -75,5 +75,5 @@ public abstract class CompiledProcessor<MEMORY_TYPE> {
 
     public abstract Object processEvent(ProcessorContext<MEMORY_TYPE> ctx, Map<Integer, Event> eventsByInputId);
     
-    public abstract void processEvent(StreamingRuntime runtime);
+    public abstract Object processEvent(StreamingRuntime runtime);
 }

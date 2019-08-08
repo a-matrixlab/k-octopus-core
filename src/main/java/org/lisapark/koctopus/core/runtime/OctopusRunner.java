@@ -17,6 +17,7 @@
 package org.lisapark.koctopus.core.runtime;
 
 import com.google.gson.Gson;
+import java.io.PrintStream;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.graph.Gnode;
@@ -32,7 +33,7 @@ import org.openide.util.Exceptions;
  *
  * @author alexmy
  */
-public class OctopusRunner extends AbstractRunner<String, Gnode> {
+public class OctopusRunner extends AbstractRunner<Integer> {
 
     public OctopusRunner() {
         super();
@@ -46,7 +47,8 @@ public class OctopusRunner extends AbstractRunner<String, Gnode> {
     public String processNode(Gnode gnode, boolean forward) {
 
         String trnsUrl = gnode.getTransportUrl();
-        RedisRuntime runtime = new RedisRuntime(trnsUrl, System.out, System.err);
+        RedisRuntime runtime = new RedisRuntime(trnsUrl, getStandardOut(), getStandardError());
+        Integer status;
 
         try {
             String type;
@@ -55,21 +57,24 @@ public class OctopusRunner extends AbstractRunner<String, Gnode> {
                     type = gnode.getType();
                     ExternalSource sourceIns = (ExternalSource) Class.forName(type).newInstance();
                     ExternalSource source = (ExternalSource) sourceIns.newInstance(gnode);
-                    source.compile(source).startProcessingEvents(runtime);
+                    status = (Integer) source.compile(source).startProcessingEvents(runtime);
+                    getNodeStatus().put(gnode.getId(), status);
 
                     break;
                 case Vocabulary.PROCESSOR:
                     type = gnode.getType();
                     AbstractProcessor processorIns = (AbstractProcessor) Class.forName(type).newInstance();
                     AbstractProcessor processor = (AbstractProcessor) processorIns.newInstance(gnode);
-                    processor.compile(processor).processEvent(runtime);
+                    status = (Integer) processor.compile(processor).processEvent(runtime);
+                    getNodeStatus().put(gnode.getId(), status);
 
                     break;
                 case Vocabulary.SINK:
                     type = gnode.getType();
                     ExternalSink sinkIns = (ExternalSink) Class.forName(type).newInstance();
                     ExternalSink sink = (ExternalSink) sinkIns.newInstance(gnode);
-                    sink.compile(sink).processEvent(runtime, null);
+                    status = (Integer) sink.compile(sink).processEvent(runtime);
+                    getNodeStatus().put(gnode.getId(), status);
 
                     break;
                 default:

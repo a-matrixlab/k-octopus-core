@@ -41,7 +41,7 @@ import org.lisapark.koctopus.core.source.external.ExternalSource;
 @Persistable
 public abstract class AbstractNode implements Node {
 
-    private final UUID  id;
+    private  UUID  id;
     private String      name;
     private String      authorEmail;
     private String      description;
@@ -82,6 +82,13 @@ public abstract class AbstractNode implements Node {
     @Override
     public final UUID getId() {
         return id;
+    }
+    
+    public final AbstractNode setId(UUID id) {
+        checkArgument(name != null, "id cannot be null");
+        this.id = id;
+        
+        return this;
     }
 
     @Override

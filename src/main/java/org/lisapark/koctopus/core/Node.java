@@ -30,7 +30,7 @@ import java.util.UUID;
 public interface Node extends Reproducible, Validatable, Copyable {
 
     UUID            getId();
-
+ 
     String          getName();
 
     Node            setName(String name);

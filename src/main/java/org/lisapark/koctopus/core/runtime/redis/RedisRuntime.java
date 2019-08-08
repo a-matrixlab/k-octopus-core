@@ -71,7 +71,7 @@ public class RedisRuntime implements StreamingRuntime<StreamMessage<String, Stri
         StatefulRedisConnection<String, String> connection = client.connect();
         RedisStreamCommands<String, String> streamCommands = connection.sync();
 
-        String name = className + ":" + id.toString();
+        String name = className + ":" + id.timestamp();
         readLock.lock();
         try {
             checkState(currentState == RedisRuntime.State.RUNNING, "Cannot send an event unless the runtime has been started.");
@@ -94,7 +94,7 @@ public class RedisRuntime implements StreamingRuntime<StreamMessage<String, Stri
     public List<StreamMessage<String, String>> readEvents(String className, UUID id, int range) {
         List<StreamMessage<String, String>> messages;
 
-        String streamName = className + ":" + id.toString();
+        String streamName = className + ":" + id.timestamp();
         String offset = StreamOffset.lastConsumed(streamName).getOffset();
 
         try (StatefulRedisConnection<String, String> connection = client.connect()) {
@@ -124,7 +124,7 @@ public class RedisRuntime implements StreamingRuntime<StreamMessage<String, Stri
         List<StreamMessage<String, String>> messages;
         try (StatefulRedisConnection<String, String> connection = client.connect()) {
             RedisStreamCommands<String, String> streamCommands = connection.sync();
-            String streamName = className + ":" + id.toString();
+            String streamName = className + ":" + id.timestamp();
             messages = streamCommands
                     .xread(XReadArgs.Builder.count(range),
                             StreamOffset.from(streamName, offset));
@@ -143,7 +143,7 @@ public class RedisRuntime implements StreamingRuntime<StreamMessage<String, Stri
         List<StreamMessage<String, String>> messages;
         try (StatefulRedisConnection<String, String> connection = client.connect()) {
             RedisStreamCommands<String, String> streamCommands = connection.sync();
-            String streamName = className + ":" + id.toString();
+            String streamName = className + ":" + id.timestamp();
             messages = streamCommands
                     .xread(XReadArgs.StreamOffset.from(streamName, offset));
         }

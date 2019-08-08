@@ -47,7 +47,7 @@ public abstract class CompiledExternalSink {
         return ImmutableList.copyOf(inputs);
     }
 
-    public abstract void processEvent(StreamingRuntime runtime, Map<Integer, Event> eventsByInputId);
+    public abstract Object processEvent(StreamingRuntime runtime);
     
     public abstract void processEvent(SinkContext ctx, Map<Integer, Event> eventsByInputId);
 }

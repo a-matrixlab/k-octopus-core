@@ -16,10 +16,13 @@
  */
 package org.lisapark.koctopus.core.graph;
 
+import com.fasterxml.uuid.Generators;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.ProcessingModel;
@@ -90,7 +93,7 @@ public class GraphUtils {
         List<? extends Input> inputs = sink.getInputs();
         inputs.forEach((Input input) -> {
             NodeInput _input = (NodeInput) ginputs.getSources().get(input.getName());
-            if (_input != null) {           
+            if (_input != null) {
                 StreamReference ref = new StreamReference();
                 ref.setReferenceClass(_input.getSourceClassName());
                 ref.setReferenceId(_input.getSourceId());
@@ -141,27 +144,36 @@ public class GraphUtils {
         });
         processor.setOutput(output);
     }
-    
-    public static Graph compileGraph(ProcessingModel model) {
+
+    public static Graph compileGraph(ProcessingModel model, String transportUrl) {
+        return compileGraph(model, transportUrl, false);
+    }
+
+    public static Graph compileGraph(ProcessingModel model, String transportUrl, boolean resetUuid) {
         Graph graph = new Graph();
 
-        graph.setId(model.getId().toString());
+        UUID uuid = resetUuid ? Generators.timeBasedGenerator().generate() : model.getId();
+        graph.setId(uuid.toString());
         graph.setLabel(Vocabulary.MODEL);
         graph.setType(Vocabulary.OCTOPUS_RUNNER);
-        graph.setTransportUrl(model.getTransportUrl());
+        String _transportUrl;
+        if (transportUrl == null) {
+            if (model.getTransportUrl() == null) {
+                _transportUrl = Constants.DEFAULT_TRANS_URL;
+            } else {
+                _transportUrl = model.getTransportUrl();
+            }
+        } else {
+            _transportUrl = transportUrl;
+        }
+
+        graph.setTransportUrl(_transportUrl);
         graph.setColor(GraphVocabulary.UNTOUCHED);
         graph.setDirected(Boolean.TRUE);
 
         NodeParams gparams = new NodeParams();
-//        gparams.setParams(new HashMap<>());
-//        NodeParam nodeparam = new NodeParam();
-//        nodeparam.setId(0);
-//        nodeparam.setName(Vocabulary.TRANSPORT_URL);
-//        nodeparam.setClassName(new String().getClass().getCanonicalName());
-//        nodeparam.setValue(model.getTransportUrl());
-//        gparams.getParams().put(0, nodeparam);
         graph.setParams(gparams);
-        
+
         List<Gnode> nodes = new ArrayList<>();
         List<Edge> edges = new ArrayList<>();
 
@@ -170,10 +182,11 @@ public class GraphUtils {
         Set<ExternalSource> sources = model.getExternalSources();
         sources.stream().forEach((ExternalSource source) -> {
             Gnode sourceGnode = new Gnode();
-            sourceGnode.setId(source.getId().toString());
+            UUID uuid_1 = resetUuid ? Generators.timeBasedGenerator().generate() : source.getId();
+            sourceGnode.setId(uuid_1.toString());
             sourceGnode.setLabel(Vocabulary.SOURCE);
             sourceGnode.setType(source.getClass().getCanonicalName());
-            sourceGnode.setTransportUrl(model.getTransportUrl());
+            sourceGnode.setTransportUrl(_transportUrl);
 
             Set<Parameter> params = source.getParameters();
             NodeParams _params = new NodeParams();
@@ -212,10 +225,11 @@ public class GraphUtils {
         Set<AbstractProcessor> processors = model.getProcessors();
         processors.stream().forEach((AbstractProcessor proc) -> {
             Gnode procGnode = new Gnode();
-            procGnode.setId(proc.getId().toString());
+            UUID uuid_2 = resetUuid ? Generators.timeBasedGenerator().generate() : proc.getId();
+            procGnode.setId(uuid_2.toString());
             procGnode.setLabel(Vocabulary.PROCESSOR);
             procGnode.setType(proc.getClass().getCanonicalName());
-            procGnode.setTransportUrl(model.getTransportUrl());
+            procGnode.setTransportUrl(_transportUrl);
 
             // Setting params
             Set<Parameter> params = proc.getParameters();
@@ -241,7 +255,7 @@ public class GraphUtils {
                 nodeInput.setAttributes(new HashMap());
                 nodeInput.setId(input.getId());
                 nodeInput.setName(input.getName());
-                nodeInput.setSourceId(inputSource.getId().toString());
+//                nodeInput.setSourceId(inputSource.getId().toString());
                 nodeInput.setSourceClassName(inputSource.getClass().getCanonicalName());
                 List<Attribute> attrs = inputSource.getOutput().getAttributes();
                 NodeAttributes nodeattrs = new NodeAttributes();
@@ -254,17 +268,9 @@ public class GraphUtils {
                 });
                 nodeInput.setAttributes(nodeattrs.getAttributes());
                 nodeInputs.getSources().put(input.getName(), nodeInput);
-                // Create edge
-                Edge edge = new Edge();
-                edge.setLabel(Vocabulary.MODEL);
-                edge.setRelation(input.getName());
-                edge.setDirected(true);
-                edge.setSource(inputSource.getClass().getCanonicalName() + ":" + inputSource.getId().toString());
-                edge.setTarget(proc.getClass().getCanonicalName() + ":" + proc.getId().toString());
-                edges.add(edge);
-            });            
+            });
             procGnode.setInput(nodeInputs);
-            
+
             Output output = proc.getOutput();
             List<Attribute> attrs = proc.getOutput().getAttributes();
             NodeOutput nodeOutput = new NodeOutput();
@@ -289,10 +295,11 @@ public class GraphUtils {
         Set<ExternalSink> sinks = model.getExternalSinks();
         sinks.stream().forEach((ExternalSink sink) -> {
             Gnode sinkGnode = new Gnode();
-            sinkGnode.setId(sink.getId().toString());
+            UUID uuid_3 = resetUuid ? Generators.timeBasedGenerator().generate() : sink.getId();
+            sinkGnode.setId(uuid_3.toString());
             sinkGnode.setLabel(Vocabulary.SINK);
             sinkGnode.setType(sink.getClass().getCanonicalName());
-            sinkGnode.setTransportUrl(model.getTransportUrl());
+            sinkGnode.setTransportUrl(_transportUrl);
 
             Set<Parameter> params = sink.getParameters();
             NodeParams _params = new NodeParams();
@@ -317,7 +324,7 @@ public class GraphUtils {
                 nodeInput.setAttributes(new HashMap());
                 nodeInput.setId(input.getId());
                 nodeInput.setName(input.getName());
-                nodeInput.setSourceId(inputSource.getId().toString());
+//                nodeInput.setSourceId(inputSource.getId().toString());
                 nodeInput.setSourceClassName(inputSource.getClass().getCanonicalName());
                 List<Attribute> attrs = inputSource.getOutput().getAttributes();
                 NodeAttributes nodeattrs = new NodeAttributes();
@@ -330,19 +337,38 @@ public class GraphUtils {
                 });
                 nodeInput.setAttributes(nodeattrs.getAttributes());
                 nodeInputs.getSources().put(input.getName(), nodeInput);
-                // Create edge
-                Edge edge = new Edge();
-                edge.setLabel(Vocabulary.MODEL);
-                edge.setRelation(input.getName());
-                edge.setDirected(true);
-                edge.setSource(inputSource.getClass().getCanonicalName() + ":" + inputSource.getId().toString());
-                edge.setTarget(sink.getClass().getCanonicalName() + ":" + sink.getId().toString());
-                edges.add(edge);
-            });            
+            });
             sinkGnode.setInput(nodeInputs);
             nodes.add(sinkGnode);
         });
         graph.setNodes(nodes);
+
+        // Build node id lookup map
+        Map<String, String> lookup = new HashMap<>();
+        graph.getNodes().forEach((node) -> {
+            lookup.put(node.getType(), node.getId());
+        });
+
+        // Create all edges
+        graph.getNodes().forEach(node -> {
+            if (Vocabulary.SOURCE.equalsIgnoreCase(node.getLabel())) {
+                // Do nothing, source has no in-edges
+            } else {
+                node.getInput().getSources().forEach((k, input) -> {
+                    // Create edges
+                    Edge edge = new Edge();
+                    edge.setLabel(Vocabulary.MODEL);
+                    edge.setRelation(input.getName());
+                    edge.setDirected(true);
+
+                    String sourceNodeId = lookup.get(input.getSourceClassName());
+                    input.setSourceId(sourceNodeId);
+                    edge.setSource(input.getSourceClassName() + ":" + sourceNodeId);
+                    edge.setTarget(node.getType() + ":" + node.getId());
+                    edges.add(edge);
+                });
+            }
+        });
         graph.setEdges(edges);
 
         return graph;

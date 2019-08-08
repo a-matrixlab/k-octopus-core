@@ -49,18 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </snapshots>
             <url>http://bits.netbeans.org/maven2</url>
         </repository>
-        <!--        
-        <repository>
-            <id>neo4j-release-repository</id>
-            <name>Neo4j Maven 2 release repository</name>
-            <url>http://m2.neo4j.org/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>-->
+        
         <repository>
             <id>neo4j-snapshot-repository</id>
             <name>Neo4j Maven 2 snapshot repository</name>
@@ -79,6 +68,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </repositories>
 
     <dependencies>
+        
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+            <version>3.1.4</version>
+        </dependency>
+        
+        
         <!-- Redis Java client -->
         <dependency>
             <groupId>io.lettuce</groupId>

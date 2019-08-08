@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.core.runtime;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,13 +38,45 @@ import scala.Tuple2;
  * @param <K>
  * @param <V>
  */
-public abstract class AbstractRunner<K, V> {
+public abstract class AbstractRunner<V> {
+    
+    
+    /**
+     * @return the standardOut
+     */
+    public PrintStream getStandardOut() {
+        return standardOut;
+    }
+
+    /**
+     * @param standardOut the standardOut to set
+     */
+    public void setStandardOut(PrintStream standardOut) {
+        this.standardOut = standardOut;
+    }
+
+    /**
+     * @return the standardError
+     */
+    public PrintStream getStandardError() {
+        return standardError;
+    }
+
+    /**
+     * @param standardError the standardError to set
+     */
+    public void setStandardError(PrintStream standardError) {
+        this.standardError = standardError;
+    }
+    
+    private PrintStream standardOut = System.out;
+    private PrintStream standardError = System.err;
 
     // In case of Db meta data Graph nodeResults map serves as a temporary storage for PK of the corresponding Table.
     // The initial capacity can be set to the Graph node collection size. However this map will hold only PK for
     // "white", "grey" and "red" nodes. Black nodes can be removed from the map.
     // This map should be persisted in order to restore Subsetting process from the failure.
-    // Keys in this map are nodeWhite's labels, values are lists of PK's for the each nodeWhite in the subsetting use case.
+    // Keys in this map are nodeWhite's ids, values are lists of PK's for the each nodeWhite in the subsetting use case.
     //
     // In the case of a different type of graphs use approapriet data type to hold nodeWhite's result collection.
     //
@@ -51,7 +84,7 @@ public abstract class AbstractRunner<K, V> {
     //   
 //    Map<String, Object> env;
     Map<String, Gnode> nodeMap;
-    Map<String, Tuple2<K, V>> nodeResults;
+    Map<String, V> nodeStatus;
     Map<String, ConcurrentLinkedQueue<Gnode>> colorBuckets;
     Map<String, Set<Edge>> forwardRels;
     Map<String, Set<Edge>> backwardRels;
@@ -102,7 +135,12 @@ public abstract class AbstractRunner<K, V> {
      * processing
      */
     public final void init() {
+        // Build Gnode map
+        getGraph().getNodes().stream().forEach((Gnode node) -> {
+            getNodeMap().put(node.getId(), node);
+        });
 
+        // Restore Color buckets
         getGraph().getNodes().stream().forEach((Gnode node) -> {
             String nodeColor = node.getColor();
             if (nodeColor.equalsIgnoreCase(GraphVocabulary.GREY)) {
@@ -121,7 +159,7 @@ public abstract class AbstractRunner<K, V> {
                 // by applying a specified sampling strategy
                 markNode(node, GraphVocabulary.GREY);
                 processNode(node, true);
-                K status = getNodeResults().get(node.getId())._1();
+                V status = getNodeStatus().get(node.getId());
 
                 if (status == GraphVocabulary.COMPLETE) {
                     markNodeCompleteBlack(node);
@@ -131,7 +169,6 @@ public abstract class AbstractRunner<K, V> {
             } else if (nodeColor.equalsIgnoreCase(GraphVocabulary.UNTOUCHED)) {
                 getColorBuckets().get(GraphVocabulary.UNTOUCHED).add(node);
             }
-
         });
     }
 
@@ -152,7 +189,7 @@ public abstract class AbstractRunner<K, V> {
                         // TODO: move markNode to the processNode body
 //                        markNode(nodeWhite, GraphVocabulary.GREY);
                         processNode(nodeWhite, true);
-                        K status = getNodeResults().get(nodeWhite.getId())._1();
+                        V status = getNodeStatus().get(nodeWhite.getId());
 
                         if (status == GraphVocabulary.COMPLETE) {
                             markNodeCompleteBlack(nodeWhite);
@@ -171,7 +208,7 @@ public abstract class AbstractRunner<K, V> {
                         // TODO: move markNode to the processNode body
 //                        markNode(nodeBlue, GraphVocabulary.GREY);
                         processNode(nodeBlue, false);
-                        K status = getNodeResults().get(nodeBlue.getId())._1();
+                        V status = getNodeStatus().get(nodeBlue.getId());
                         if (status == GraphVocabulary.COMPLETE) {
                             markNodeCompleteBlack(nodeBlue);
                         } else {
@@ -210,7 +247,7 @@ public abstract class AbstractRunner<K, V> {
                 }
             }
         }
-        System.out.println("Processing Results: " + getNodeResults());
+        System.out.println("Processing Results: " + getNodeStatus());
     }
 
     /**
@@ -233,7 +270,7 @@ public abstract class AbstractRunner<K, V> {
         if (set != null) {
             set.stream().forEach((edge) -> {
                 String[] target = edge.getTarget().split(delim);
-                Gnode _node = getNodeMap().get(target[0]);
+                Gnode _node = getNodeMap().get(target[1]);
                 String _nodeColor = _node.getColor();
                 if (GraphVocabulary.UNTOUCHED.equalsIgnoreCase(_nodeColor)) {
                     markNode(_node, GraphVocabulary.WHITE);
@@ -277,7 +314,9 @@ public abstract class AbstractRunner<K, V> {
     private void moveNode(Gnode node, String color) {
         // 1. Remove nodeWhite from current bucket
         String curColor = node.getColor();
-        getColorBuckets().get(curColor).remove(node);
+        if (getColorBuckets().get(curColor) != null) {
+            getColorBuckets().get(curColor).remove(node);
+        }
         // 2. Add it to the new color bucket
         getColorBuckets().get(color).add(node);
     }
@@ -311,15 +350,18 @@ public abstract class AbstractRunner<K, V> {
     /**
      * @return the nodeResults
      */
-    public Map<String, Tuple2<K, V>> getNodeResults() {
-        return nodeResults == null ? nodeResults = new HashMap<>() : nodeResults;
+    public Map<String, V> getNodeStatus() {
+        if (nodeStatus == null) {
+            nodeStatus = new ConcurrentHashMap<>();
+        }
+        return nodeStatus;
     }
 
     /**
      * @param nodeResults the nodeResults to set
      */
-    public void setNodeResults(ConcurrentHashMap<String, Tuple2<K, V>> nodeResults) {
-        this.nodeResults = nodeResults;
+    public void setNodeStatus(ConcurrentHashMap<String, V> nodeResults) {
+        this.nodeStatus = nodeResults;
     }
 
     /**
@@ -345,7 +387,7 @@ public abstract class AbstractRunner<K, V> {
                 if (forwardRels.get(source[1]) == null) {
                     forwardRels.put(source[1], new HashSet<>());
                 }
-                forwardRels.get(source[0]).add(edge);
+                forwardRels.get(source[1]).add(edge);
             });
         }
         return forwardRels;
@@ -360,7 +402,7 @@ public abstract class AbstractRunner<K, V> {
                 if (backwardRels.get(target[1]) == null) {
                     backwardRels.put(target[1], new HashSet<>());
                 }
-                backwardRels.get(target[0]).add(edge);
+                backwardRels.get(target[1]).add(edge);
             });
         }
         return backwardRels;

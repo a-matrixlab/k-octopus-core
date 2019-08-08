@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.core;
 
+import com.fasterxml.uuid.Generators;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
@@ -47,14 +48,14 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     private String transportUrl;
 
     public ProcessingModel(String modelName) {
-        super(UUID.randomUUID());
+        super(Generators.timeBasedGenerator().generate());
         checkArgument(modelName != null, "modelName cannot be null");
         this.setName(modelName);
         this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
     }
 
     public ProcessingModel(String modelName, String modelRepo) {
-        super(UUID.randomUUID());
+        super(Generators.timeBasedGenerator().generate());
         checkArgument(modelName != null, "modelName cannot be null");
         checkArgument(modelName != null, "modelRepo cannot be null");
 

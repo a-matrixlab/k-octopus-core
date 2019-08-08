@@ -27,7 +27,7 @@ public interface CompiledExternalSource {
 
     void startProcessingEvents(ProcessingRuntime runtime) throws ProcessingException;
     
-    void startProcessingEvents(StreamingRuntime runtime) throws ProcessingException;
+    Object startProcessingEvents(StreamingRuntime runtime) throws ProcessingException;
 
     void stopProcessingEvents();
 }
