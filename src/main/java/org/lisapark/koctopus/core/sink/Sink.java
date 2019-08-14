@@ -36,5 +36,5 @@ public interface Sink extends Node {
 
     void disconnect(Source source);
     
-    Node setId(UUID id);
+//    Node setId(UUID id);
 }

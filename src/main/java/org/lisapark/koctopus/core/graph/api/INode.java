@@ -44,6 +44,12 @@ public interface INode<V1, V2, V3, V4> {
     public String getColor();
     public void setColor(String color);
     
+    public int getX();
+    public void setX(int x);
+    
+    public int getY();
+    public void setY(int y);
+    
     public V1 getPassport();    
     public V2 getParams();    
     public V3 getInput();    
@@ -54,7 +60,6 @@ public interface INode<V1, V2, V3, V4> {
     public void setInput(V3 input);    
     public void setOutput(V4 output);
     
-    public JsonObject toJson();
-    
+    public JsonObject toJson();    
     public INode fromJson(String json);
 }

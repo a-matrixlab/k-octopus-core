@@ -67,15 +67,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </repository> 
     </repositories>
 
-    <dependencies>
-        
+    <dependencies>   
+        <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-core -->
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>8.2.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-analyzers-common -->
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>8.2.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-queryparser -->
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+            <version>8.2.0</version>
+        </dependency>
+        <!-- End of Lucene -->
+
         <dependency>
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>
             <version>3.1.4</version>
-        </dependency>
-        
-        
+        </dependency>    
+            
         <!-- Redis Java client -->
         <dependency>
             <groupId>io.lettuce</groupId>
@@ -90,11 +108,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <type>jar</type>
         </dependency>
         
-        <dependency>
+        <!--dependency>
             <groupId>com.espertech</groupId>
             <artifactId>esper</artifactId>
             <version>4.3.0</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -170,7 +188,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </dependency>
 
         <!-- DB4O -->        
-        <dependency>
+        <!--dependency>
             <groupId>com.db4o</groupId>
             <artifactId>db4o-full-java5</artifactId>
             <version>8.1-SNAPSHOT</version>
@@ -193,7 +211,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <artifactId>db4o-instrumentation-java5</artifactId>
             <version>8.1-SNAPSHOT</version>
             <type>jar</type>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
@@ -296,11 +314,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <dependencies>
-                    <!-- We need the db4o tooling for enhancing stuff -->
                     <dependency>
                         <groupId>com.db4o</groupId>
                         <artifactId>db4o-tools-java5</artifactId>
@@ -315,7 +332,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
 </project>

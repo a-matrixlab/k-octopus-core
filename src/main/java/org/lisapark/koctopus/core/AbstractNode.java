@@ -85,7 +85,7 @@ public abstract class AbstractNode implements Node {
     }
     
     public final AbstractNode setId(UUID id) {
-        checkArgument(name != null, "id cannot be null");
+        checkArgument(id != null, "id cannot be null");
         this.id = id;
         
         return this;

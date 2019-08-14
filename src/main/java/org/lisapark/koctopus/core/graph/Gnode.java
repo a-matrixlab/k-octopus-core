@@ -28,7 +28,52 @@ import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
  * @author alexmy
  */
 public  class Gnode implements INode<NodePassport, NodeParams, NodeInputs, NodeOutput> {
+
+    /**
+     * @return the x
+     */
+    @Override
+    public int getX() {
+        return x;
+    }
+
+    /**
+     * @param x the x to set
+     */
+    @Override
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    /**
+     * @return the y
+     */
+    @Override
+    public int getY() {
+        return y;
+    }
+
+    /**
+     * @param y the y to set
+     */
+    @Override
+    public void setY(int y) {
+        this.y = y;
+    }
     
+    private String id;
+    private String type;
+    private String label;
+    private String transportUrl;
+    private String color;
+    private int x;
+    private int y;
+    
+    private NodePassport passport;
+    private NodeParams params;
+    private NodeInputs input;
+    private NodeOutput output;
+   
     public Gnode(){
         this.color = GraphVocabulary.UNTOUCHED;
     }
@@ -161,16 +206,6 @@ public  class Gnode implements INode<NodePassport, NodeParams, NodeInputs, NodeO
         this.output = output;
     }
 
-    private String id;
-    private String type;
-    private String label;
-    private String transportUrl;
-    private String color;
-    private NodePassport passport;
-    private NodeParams params;
-    private NodeInputs input;
-    private NodeOutput output;
-   
     @Override
     public JsonObject toJson() {
         JsonParser parser = new JsonParser();

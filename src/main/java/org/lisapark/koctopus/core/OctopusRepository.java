@@ -31,7 +31,7 @@ public interface OctopusRepository {
    
     // Work with model list locally
     //==========================================================================
-    List<ProcessingModel>   getProcessingModelsByName(String name) throws RepositoryException;
+//    List<ProcessingModel>   getProcessingModelsByName(String name) throws RepositoryException;
     
     // Work with model list remotely
     //==========================================================================
@@ -44,35 +44,30 @@ public interface OctopusRepository {
 
     // Get selected model
     //==========================================================================
-    ProcessingModel         getProcessingModelByName(String name) throws RepositoryException;
+//    ProcessingModel         getProcessingModelByName(String name) throws RepositoryException;
     
 //    ProcessingModel         getProcessingModelByName(String name, String turl,
 //            Integer tport, String tuid, String tpsw) throws RepositoryException;
     
     // Select processors
     //==========================================================================
-    List<ExternalSink>      getAllExternalSinkTemplates() throws RepositoryException;
+    List<ExternalSink>          getAllExternalSinkTemplates() throws RepositoryException;    
+//    Set<ExternalSink>           getExternalSinkTemplates(String name) throws RepositoryException;    
+//    Set<ExternalSink>           getExternalSinkTemplateByClassName(String name) throws RepositoryException;
     
-    Set<ExternalSink>       getExternalSinkTemplates(String name) throws RepositoryException;
-    
-    Set<ExternalSink>       getExternalSinkTemplateByClassName(String name) throws RepositoryException;
 
-    List<ExternalSource>    getAllExternalSourceTemplates() throws RepositoryException;
+    List<ExternalSource>        getAllExternalSourceTemplates() throws RepositoryException;    
+//    Set<ExternalSource>         getExternalSourceTemplates(String name) throws RepositoryException;    
+//    Set<ExternalSource>         getExternalSourceTemplateByClassName(String name) throws RepositoryException;
     
-    Set<ExternalSource>     getExternalSourceTemplates(String name) throws RepositoryException;
-    
-    Set<ExternalSource>     getExternalSourceTemplateByClassName(String name) throws RepositoryException;
-
-    List<AbstractProcessor>         getAllProcessorTemplates() throws RepositoryException;
-    
-    Set<AbstractProcessor>          getProcessorTemplates(String name) throws RepositoryException;
-    
-    Set<AbstractProcessor>          getProcessorTemplateByClassName(String name) throws RepositoryException;
+    List<AbstractProcessor>     getAllProcessorTemplates() throws RepositoryException;    
+//    Set<AbstractProcessor>      getProcessorTemplates(String name) throws RepositoryException;    
+//    Set<AbstractProcessor>      getProcessorTemplateByClassName(String name) throws RepositoryException;
      
     // Save model
     //==========================================================================
-    void saveProcessingModel(ProcessingModel model) throws RepositoryException;
+//    void saveProcessingModel(ProcessingModel model) throws RepositoryException;
 
-    void saveProcessingModelOnServer(ProcessingModel model, String turl,
-            int tport, String tuid, String tpsw) throws RepositoryException;
+//    void saveProcessingModelOnServer(ProcessingModel model, String turl,
+//            int tport, String tuid, String tpsw) throws RepositoryException;
 }

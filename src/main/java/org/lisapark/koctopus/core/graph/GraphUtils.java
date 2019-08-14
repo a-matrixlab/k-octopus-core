@@ -17,12 +17,17 @@
 package org.lisapark.koctopus.core.graph;
 
 import com.fasterxml.uuid.Generators;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.IndexOptions;
 import org.lisapark.koctopus.core.Input;
 import org.lisapark.koctopus.core.Output;
 import org.lisapark.koctopus.core.ProcessingModel;
@@ -45,6 +50,11 @@ import org.openide.util.Exceptions;
  */
 public class GraphUtils {
 
+    /**
+     *
+     * @param source
+     * @param gnode
+     */
     public static void buildSource(ExternalSource source, Gnode gnode) {
         NodeParams gparams = (NodeParams) gnode.getParams();
         Set<Parameter> params = source.getParameters();
@@ -75,6 +85,11 @@ public class GraphUtils {
         source.setOutput(output);
     }
 
+    /**
+     *
+     * @param sink
+     * @param gnode
+     */
     public static void buildSink(ExternalSink sink, Gnode gnode) {
         NodeParams gparams = (NodeParams) gnode.getParams();
         Set<Parameter> params = sink.getParameters();
@@ -94,15 +109,36 @@ public class GraphUtils {
         inputs.forEach((Input input) -> {
             NodeInput _input = (NodeInput) ginputs.getSources().get(input.getName());
             if (_input != null) {
-                StreamReference ref = new StreamReference();
-                ref.setReferenceClass(_input.getSourceClassName());
-                ref.setReferenceId(_input.getSourceId());
-                ref.setAttributes(_input.getAttributes());
-                sink.getReferences().put(input.getName(), ref);
+                try {
+                    String sourceClassName = _input.getSourceClassName();
+                    Object source = Class.forName(sourceClassName).newInstance();
+                    if (source instanceof AbstractProcessor) {
+                        AbstractProcessor proc = (AbstractProcessor) source;
+                        proc.setId(UUID.fromString(_input.getSourceId()));
+                        input.connectSource(proc);
+                    } else if (source instanceof ExternalSource) {
+                        ExternalSource exsource = (ExternalSource) source;
+                        exsource.setId(UUID.fromString(_input.getSourceId()));
+                        input.connectSource(exsource);
+                    }
+
+                    StreamReference ref = new StreamReference();
+                    ref.setReferenceClass(_input.getSourceClassName());
+                    ref.setReferenceId(_input.getSourceId());
+                    ref.setAttributes(_input.getAttributes());
+                    sink.getReferences().put(input.getName(), ref);
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
             }
         });
     }
 
+    /**
+     *
+     * @param processor
+     * @param gnode
+     */
     public static void buildProcessor(AbstractProcessor processor, Gnode gnode) {
         NodeParams gparams = (NodeParams) gnode.getParams();
         Set<Parameter> params = processor.getParameters();
@@ -120,13 +156,28 @@ public class GraphUtils {
         final NodeInputs ginputs = (NodeInputs) gnode.getInput();
         List<? extends Input> inputs = processor.getInputs();
         inputs.forEach((Input input) -> {
-            NodeInput _input = (NodeInput) ginputs.getSources().get(input.getName());
-            if (_input != null) {
-                StreamReference ref = new StreamReference();
-                ref.setReferenceClass(_input.getSourceClassName());
-                ref.setReferenceId(_input.getSourceId());
-                ref.setAttributes(_input.getAttributes());
-                processor.getReferences().put(input.getName(), ref);
+            try {
+                NodeInput _input = (NodeInput) ginputs.getSources().get(input.getName());
+                if (_input != null) {
+                    String sourceClassName = _input.getSourceClassName();
+                    Object source = Class.forName(sourceClassName).newInstance();
+                    if (source instanceof AbstractProcessor) {
+                        AbstractProcessor proc = (AbstractProcessor) source;
+                        proc.setId(UUID.fromString(_input.getSourceId()));
+                        input.connectSource(proc);
+                    } else if (source instanceof ExternalSource) {
+                        ExternalSource exsource = (ExternalSource) source;
+                        exsource.setId(UUID.fromString(_input.getSourceId()));
+                        input.connectSource(exsource);
+                    }
+                    StreamReference ref = new StreamReference();
+                    ref.setReferenceClass(sourceClassName);
+                    ref.setReferenceId(_input.getSourceId());
+                    ref.setAttributes(_input.getAttributes());
+                    processor.getReferences().put(input.getName(), ref);
+                }
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                Exceptions.printStackTrace(ex);
             }
         });
         final NodeOutput goutput = (NodeOutput) gnode.getOutput();
@@ -145,6 +196,12 @@ public class GraphUtils {
         processor.setOutput(output);
     }
 
+    /**
+     *
+     * @param model
+     * @param transportUrl
+     * @return
+     */
     public static Graph compileGraph(ProcessingModel model, String transportUrl) {
         return compileGraph(model, transportUrl, false);
     }
@@ -172,6 +229,15 @@ public class GraphUtils {
         graph.setDirected(Boolean.TRUE);
 
         NodeParams gparams = new NodeParams();
+        gparams.setParams(new HashMap<>());
+        model.getParameters().forEach((param) -> {
+            NodeParam _param = new NodeParam();
+            _param.setId(param.getId());
+            _param.setName(param.getName());
+            _param.setClassName(param.getType().getCanonicalName());
+            _param.setValue(param.getValue());
+            gparams.getParams().put(param.getId(), _param);
+        });
         graph.setParams(gparams);
 
         List<Gnode> nodes = new ArrayList<>();
@@ -187,6 +253,8 @@ public class GraphUtils {
             sourceGnode.setLabel(Vocabulary.SOURCE);
             sourceGnode.setType(source.getClass().getCanonicalName());
             sourceGnode.setTransportUrl(_transportUrl);
+            sourceGnode.setX(source.getLocation().x);
+            sourceGnode.setY(source.getLocation().y);
 
             Set<Parameter> params = source.getParameters();
             NodeParams _params = new NodeParams();
@@ -230,6 +298,8 @@ public class GraphUtils {
             procGnode.setLabel(Vocabulary.PROCESSOR);
             procGnode.setType(proc.getClass().getCanonicalName());
             procGnode.setTransportUrl(_transportUrl);
+            procGnode.setX(proc.getLocation().x);
+            procGnode.setY(proc.getLocation().y);
 
             // Setting params
             Set<Parameter> params = proc.getParameters();
@@ -300,6 +370,8 @@ public class GraphUtils {
             sinkGnode.setLabel(Vocabulary.SINK);
             sinkGnode.setType(sink.getClass().getCanonicalName());
             sinkGnode.setTransportUrl(_transportUrl);
+            sinkGnode.setX(sink.getLocation().x);
+            sinkGnode.setY(sink.getLocation().y);
 
             Set<Parameter> params = sink.getParameters();
             NodeParams _params = new NodeParams();
@@ -372,5 +444,126 @@ public class GraphUtils {
         graph.setEdges(edges);
 
         return graph;
+    }
+
+    /**
+     *
+     * @param graph
+     * @param modelName
+     * @return
+     */
+    public static ProcessingModel buildProcessingModel(Graph graph, String modelName) {
+        String transUrl = graph.getTransportUrl();
+        ProcessingModel model = new ProcessingModel(modelName, transUrl);
+        Set<Parameter> params = model.getParameters();
+        params.forEach((Parameter param) -> {
+            NodeParam _param = (NodeParam) graph.getParams().getParams().get(param.getId());
+            if (_param != null) {
+                try {
+                    String value = _param.getValue() == null ? null : _param.getValue().toString();
+                    param.setValueFromString(value);
+                } catch (ValidationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        });
+        // Node's lookup map
+        Map<String, Object> lookupModel = new HashMap<>();
+        graph.getNodes().forEach((gnode) -> {
+            try {
+                String type;
+                switch (gnode.getLabel()) {
+                    case Vocabulary.SOURCE:
+                        type = gnode.getType();
+                        ExternalSource sourceIns = (ExternalSource) Class.forName(type).newInstance();
+                        ExternalSource source = (ExternalSource) sourceIns.newInstance(gnode);
+                        source.setLocation(new Point(gnode.getX(), gnode.getY()));
+                        model.addExternalEventSource(source);
+                        lookupModel.put(source.getId().toString(), source);
+                        break;
+                    case Vocabulary.PROCESSOR:
+                        type = gnode.getType();
+                        AbstractProcessor processorIns = (AbstractProcessor) Class.forName(type).newInstance();
+                        AbstractProcessor processor = (AbstractProcessor) processorIns.newInstance(gnode);
+                        processor.setLocation(new Point(gnode.getX(), gnode.getY()));
+                        lookupModel.put(processor.getId().toString(), processor);
+                        model.addProcessor(processor);
+                        break;
+                    case Vocabulary.SINK:
+                        type = gnode.getType();
+                        ExternalSink sinkIns = (ExternalSink) Class.forName(type).newInstance();
+                        ExternalSink sink = (ExternalSink) sinkIns.newInstance(gnode);
+                        sink.setLocation(new Point(gnode.getX(), gnode.getY()));
+                        lookupModel.put(sink.getId().toString(), sink);
+                        model.addExternalSink(sink);
+                        break;
+                    default:
+                        break;
+                }
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        });
+        // Set all connections for processor and sink nodes inputs
+        model.getProcessors().forEach((AbstractProcessor proc) -> {
+            List<? extends Input> inputs = proc.getInputs();
+            inputs.forEach((input) -> {
+                String uuid = input.getSource().getId().toString();
+                input.connectSource((Source) lookupModel.get(uuid));
+            });
+        });
+        model.getExternalSinks().forEach((ExternalSink sink) -> {
+            List<? extends Input> inputs = sink.getInputs();
+            inputs.forEach((Input input) -> {
+                String uuid = input.getSource().getId().toString();
+                input.connectSource((Source) lookupModel.get(uuid));
+            });
+        });
+        return model;
+    }
+
+    /**
+     *
+     * @param graph
+     * @return
+     */
+    public static Document graphLuceneDoc(Graph graph) {
+        Document graphDoc = new Document();
+        FieldType meta = typeMeta();
+        FieldType text = typeText();
+
+        graphDoc.add(new Field("id", graph.getId(), meta));
+
+        return graphDoc;
+    }
+
+    private static FieldType typeText() {
+        // This is the field setting for normal text field.
+        FieldType text = new FieldType();
+        text.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
+        text.setStoreTermVectors(true);
+        text.setStoreTermVectorPositions(true);
+        text.setTokenized(true);
+        text.setStored(true);
+        text.freeze();
+        
+        return text;
+    }
+
+    private static FieldType typeMeta() {
+        // This is the field setting for metadata field.
+        FieldType meta = new FieldType();
+        meta.setOmitNorms(true);
+        meta.setIndexOptions(IndexOptions.DOCS);
+        meta.setStored(true);
+        meta.setTokenized(false);
+        meta.freeze();
+        return meta;
+    }
+
+    public static Document graphNodeLuceneDoc(Gnode gnode) {
+        Document gnodeDoc = new Document();
+
+        return gnodeDoc;
     }
 }

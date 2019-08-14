@@ -17,17 +17,17 @@
 package org.lisapark.koctopus;
 
 import com.google.gson.Gson;
-import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
 import org.lisapark.koctopus.core.ModelGraph;
 import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.ProcessorBean;
 import org.lisapark.koctopus.core.ValidationException;
-import org.lisapark.koctopus.core.compiler.esper.EsperCompiler;
+import org.lisapark.koctopus.core.graph.Graph;
+import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
-import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
+import org.lisapark.koctopus.core.runtime.AbstractRunner;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
 import org.openide.util.Exceptions;
@@ -37,7 +37,7 @@ import org.openide.util.Exceptions;
  * @author Alex Mylnikov (alexmy@lisa-park.com)
  */
 public class ModelRunner {
-    
+
     public static final String MODEL_NAME = "modelname";
     public static final String MODEL_JSON = "modeljson";
 
@@ -51,16 +51,17 @@ public class ModelRunner {
         String canonical = runner.getCanonical(string);
     }
 
-    ModelRunner() {}
+    ModelRunner() {
+    }
 
     /**
-     * 
-     * @param model 
+     *
+     * @param model
      */
     public ModelRunner(ProcessingModel model) {
         this.model = model;
     }
- 
+
     /**
      * This constructor serves old version
      *
@@ -122,25 +123,18 @@ public class ModelRunner {
      *
      */
     public void runModel() {
-
         if (getModel() != null) {
-            org.lisapark.koctopus.core.compiler.Compiler compiler = new EsperCompiler();
-            PrintStream stream = new PrintStream(System.out);
-            compiler.setStandardOut(stream);
-            compiler.setStandardError(stream);
-
             try {
+                Graph processingModelGraph = GraphUtils.compileGraph(getModel(), null, true);
+                String type = processingModelGraph.getType();
 
-                ProcessingRuntime runtime = compiler.compile(getModel());
+                AbstractRunner runner = (AbstractRunner) Class.forName(type).newInstance();
 
-                runtime.start();
-                runtime.shutdown();
-                
-                // Reliese all resources used by the model
-                getModel().complete();
-
-            } catch (ValidationException e1) {
-                System.out.println(e1.getLocalizedMessage() + "\n");
+                runner.setGraph(processingModelGraph);
+                runner.init();
+                runner.execute();
+            } catch (InterruptedException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+//                outputTxt.append("\n\n" + ex.getLocalizedMessage() + "\n");
             }
         }
     }

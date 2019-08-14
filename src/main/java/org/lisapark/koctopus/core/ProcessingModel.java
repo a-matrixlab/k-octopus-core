@@ -49,19 +49,26 @@ public class ProcessingModel extends AbstractNode implements Validatable {
 
     public ProcessingModel(String modelName) {
         super(Generators.timeBasedGenerator().generate());
-        checkArgument(modelName != null, "modelName cannot be null");
-        this.setName(modelName);
-        this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
+        init(modelName, "redis://localhost");
     }
 
-    public ProcessingModel(String modelName, String modelRepo) {
+    public ProcessingModel(String modelName, String transportUrl) {
         super(Generators.timeBasedGenerator().generate());
+        init(modelName, transportUrl);        
+    }
+    
+    private void init(String modelName, String transportUrl){
         checkArgument(modelName != null, "modelName cannot be null");
         checkArgument(modelName != null, "modelRepo cannot be null");
 
         this.setName(modelName);
         this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
-        this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Repo").defaultValue(modelRepo).build());
+        this.setTransportUrl(transportUrl);
+        this.addParameter(StringParameter.stringParameterWithIdAndName(2, "Model Repo").defaultValue(transportUrl).build());
+        
+        this.addParameter(StringParameter.stringParameterWithIdAndName(3, "Description").defaultValue("Short Model description.").build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(4, "Author").defaultValue("Full author name.").build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(5, "Author email").defaultValue("Author email.").build());
     }
 
     public DateTime getLastSaved() {
