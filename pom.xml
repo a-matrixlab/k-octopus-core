@@ -68,6 +68,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </repositories>
 
     <dependencies>   
+        
+        <!-- Jide Stuff -->
+        <dependency>
+            <groupId>com.jidesoft</groupId>
+            <artifactId>jide-action</artifactId>
+            <version>3.4.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jidesoft</groupId>
+            <artifactId>jide-common</artifactId>
+            <version>3.4.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jidesoft</groupId>
+            <artifactId>jide-components</artifactId>
+            <version>3.4.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jidesoft</groupId>
+            <artifactId>jide-dock</artifactId>
+            <version>3.4.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jidesoft</groupId>
+            <artifactId>jide-grids</artifactId>
+            <version>3.4.7</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-core -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
@@ -137,7 +165,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <artifactId>joda-time</artifactId>
             <version>2.0</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.6.2</version>
@@ -151,40 +179,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>0.9.30</version>
-        </dependency>
+        </dependency-->
 
         <!-- Netbeans -->        
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-visual</artifactId>
             <version>RELEASE701</version>
-        </dependency>
-
-        <!-- Jide Stuff -->
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-action</artifactId>
-            <version>3.4.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-common</artifactId>
-            <version>3.4.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-components</artifactId>
-            <version>3.4.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-dock</artifactId>
-            <version>3.4.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-grids</artifactId>
-            <version>3.4.7</version>
         </dependency>
 
         <!-- DB4O -->        
@@ -245,11 +246,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <version>3.0.0</version>
             <type>jar</type>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>1.8.6</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
@@ -313,26 +314,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <!--plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.db4o</groupId>
-                        <artifactId>db4o-tools-java5</artifactId>
-                        <version>8.1-SNAPSHOT</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>                        
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin-->
+            </plugin>            
         </plugins>
     </build>
 </project>
