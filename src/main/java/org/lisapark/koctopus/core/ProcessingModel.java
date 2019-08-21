@@ -29,9 +29,9 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.gson.Gson;
-import java.util.UUID;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.parameter.StringParameter;
+import org.openide.util.Exceptions;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com) 03/06/2013 Alex Mylnikov
@@ -42,10 +42,18 @@ public class ProcessingModel extends AbstractNode implements Validatable {
 
     private DateTime lastSaved;
 
+    private final int MODEL_NAME_ID = 1;
+    private final int TRANSPORT_URL_ID = 2;
+    private final int DESCRIPTION_ID = 3;
+    private final int AUTHOR_ID = 4;
+    private final int AUTHOT_EMAIL_ID = 5;
+    private final int SERVICE_URL_ID = 6;
+    private final int LUCENE_INDEX_ID = 7;
+    private final int MODEL_JSON_FILE_ID = 8;
+
     private final Set<ExternalSource> externalSources = Sets.newHashSet();
     private final Set<AbstractProcessor> processors = Sets.newHashSet();
     private final Set<ExternalSink> externalSinks = Sets.newHashSet();
-    private String transportUrl;
 
     public ProcessingModel(String modelName) {
         super(Generators.timeBasedGenerator().generate());
@@ -54,21 +62,25 @@ public class ProcessingModel extends AbstractNode implements Validatable {
 
     public ProcessingModel(String modelName, String transportUrl) {
         super(Generators.timeBasedGenerator().generate());
-        init(modelName, transportUrl);        
+        init(modelName, transportUrl);
     }
-    
-    private void init(String modelName, String transportUrl){
+
+    private void init(String modelName, String transportUrl) {
         checkArgument(modelName != null, "modelName cannot be null");
         checkArgument(modelName != null, "modelRepo cannot be null");
 
         this.setName(modelName);
-        this.addParameter(StringParameter.stringParameterWithIdAndName(1, "Model Name").defaultValue(modelName).build());
-        this.setTransportUrl(transportUrl);
-        this.addParameter(StringParameter.stringParameterWithIdAndName(2, "Model Repo").defaultValue(transportUrl).build());
-        
-        this.addParameter(StringParameter.stringParameterWithIdAndName(3, "Description").defaultValue("Short Model description.").build());
-        this.addParameter(StringParameter.stringParameterWithIdAndName(4, "Author").defaultValue("Full author name.").build());
-        this.addParameter(StringParameter.stringParameterWithIdAndName(5, "Author email").defaultValue("Author email.").build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(MODEL_NAME_ID, "Model Name").defaultValue(modelName).build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(TRANSPORT_URL_ID, "Transport Url").defaultValue(transportUrl).build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(DESCRIPTION_ID, "Description").defaultValue("Short Model description.").build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(AUTHOR_ID, "Author").defaultValue("Full author name.").build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(AUTHOT_EMAIL_ID, "Author email").defaultValue("Author email.").build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(SERVICE_URL_ID, "Service Url").defaultValue("")
+                .description("URL to K-Octopus Service (engine).").build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(LUCENE_INDEX_ID, "Model Lucene Index").defaultValue("")
+                .description("Path or URL to Lucene Index Derectory for the current model.").build());
+        this.addParameter(StringParameter.stringParameterWithIdAndName(MODEL_JSON_FILE_ID, "Json file path").defaultValue("")
+                .description("Path or URL to Json file for the current model.").build());
     }
 
     public DateTime getLastSaved() {
@@ -83,6 +95,66 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     public void addExternalEventSource(ExternalSource source) {
         checkArgument(source != null, "source cannot be null");
         externalSources.add(source);
+    }
+
+    /**
+     * @return the serviceUrl
+     */
+    public String getServiceUrl() {
+        return (String) this.getParameter(SERVICE_URL_ID).getValue();
+    }
+
+    /**
+     * @param serviceUrl the serviceUrl to set
+     */
+    public void setServiceUrl(String serviceUrl) {
+        try {
+            this.getParameter(SERVICE_URL_ID).setValueFromString(serviceUrl);
+        } catch (ValidationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    /**
+     * @return the transportUrl
+     */
+    public String getTransportUrl() {
+        return (String) this.getParameter(TRANSPORT_URL_ID).getValue();
+    }
+
+    /**
+     * @param transportUrl the transportUrl to set
+     */
+    public void setTransportUrl(String transportUrl) {
+        try {
+            this.getParameter(TRANSPORT_URL_ID).setValueFromString(transportUrl);
+        } catch (ValidationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    public String getLuceneIndex() {
+        return (String) this.getParameter(LUCENE_INDEX_ID).getValue();
+    }
+    
+    public void setLuceneIndex(String luceneIndex) {
+        try {
+            this.getParameter(LUCENE_INDEX_ID).setValueFromString(luceneIndex);
+        } catch (ValidationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    public String getModelJsonFile() {
+        return (String) this.getParameter(MODEL_JSON_FILE_ID).getValue();
+    }
+    
+    public void setModelJsonFile(String jsonFile) {
+        try {
+            this.getParameter(MODEL_JSON_FILE_ID).setValueFromString(jsonFile);
+        } catch (ValidationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
     /**
@@ -131,9 +203,9 @@ public class ProcessingModel extends AbstractNode implements Validatable {
 
     /**
      * Removes the specified
-     * {@link org.lisapark.koctopus.core.processor.AbstractProcessor} from this model.
-     * Doing so will remove any connections between this processor and any other
-     * sink or processor.
+     * {@link org.lisapark.koctopus.core.processor.AbstractProcessor} from this
+     * model. Doing so will remove any connections between this processor and
+     * any other sink or processor.
      *
      * @param processor to remove from model
      */
@@ -263,25 +335,11 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    /**
-     * @return the transportUrl
-     */
-    public String getTransportUrl() {
-        return transportUrl;
-    }
-
-    /**
-     * @param transportUrl the transportUrl to set
-     */
-    public void setTransportUrl(String transportUrl) {
-        this.transportUrl = transportUrl;
-    }
-
     @Override
     public Reproducible newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     /**
      *
      * @return
@@ -341,4 +399,5 @@ public class ProcessingModel extends AbstractNode implements Validatable {
 
         return sinks;
     }
+
 }

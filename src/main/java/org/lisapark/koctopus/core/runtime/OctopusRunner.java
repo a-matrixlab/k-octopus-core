@@ -17,7 +17,6 @@
 package org.lisapark.koctopus.core.runtime;
 
 import com.google.gson.Gson;
-import java.io.PrintStream;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.graph.Gnode;

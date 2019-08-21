@@ -65,6 +65,8 @@ public  class Gnode implements INode<NodePassport, NodeParams, NodeInputs, NodeO
     private String type;
     private String label;
     private String transportUrl;
+    private String searviceUrl;
+    private String luceneIndex;
     private String color;
     private int x;
     private int y;
@@ -142,6 +144,20 @@ public  class Gnode implements INode<NodePassport, NodeParams, NodeInputs, NodeO
         this.transportUrl = transportUrl;
     }
 
+    /**
+     * @return the searviceUrl
+     */
+    public String getSearviceUrl() {
+        return searviceUrl;
+    }
+
+    /**
+     * @param searviceUrl the searviceUrl to set
+     */
+    public void setSearviceUrl(String searviceUrl) {
+        this.searviceUrl = searviceUrl;
+    }
+    
     /**
      * @return the passport
      */
@@ -232,5 +248,19 @@ public  class Gnode implements INode<NodePassport, NodeParams, NodeInputs, NodeO
     @Override
     public void setColor(String color) {
         this.color = color;
+    }
+
+    /**
+     * @return the luceneIndex
+     */
+    public String getLuceneIndex() {
+        return luceneIndex;
+    }
+
+    /**
+     * @param luceneIndex the luceneIndex to set
+     */
+    public void setLuceneIndex(String luceneIndex) {
+        this.luceneIndex = luceneIndex;
     }
 }

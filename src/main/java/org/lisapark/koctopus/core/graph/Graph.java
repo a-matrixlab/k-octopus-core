@@ -28,7 +28,8 @@ import java.util.List;
  */
 public final class Graph extends Gnode {
     
-    private Boolean directed;
+    private Boolean directed; 
+    private String graphJsonPath;
 
     private List<Gnode> nodes;
     private List<Edge> edges;    
@@ -86,4 +87,19 @@ public final class Graph extends Gnode {
     public Graph fromJson(String json) {
         return new Gson().fromJson(json, this.getClass());
     }
+
+    /**
+     * @return the graphJsonPath
+     */
+    public String getGraphJsonPath() {
+        return graphJsonPath;
+    }
+
+    /**
+     * @param graphJsonPath the graphJsonPath to set
+     */
+    public void setGraphJsonPath(String graphJsonPath) {
+        this.graphJsonPath = graphJsonPath;
+    }
+
 }

@@ -30,12 +30,10 @@ import org.lisapark.koctopus.core.graph.Edge;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.Graph;
 import org.lisapark.koctopus.core.graph.api.GraphVocabulary;
-import scala.Tuple2;
 
 /**
  *
  * @author alexmylnikov
- * @param <K>
  * @param <V>
  */
 public abstract class AbstractRunner<V> {

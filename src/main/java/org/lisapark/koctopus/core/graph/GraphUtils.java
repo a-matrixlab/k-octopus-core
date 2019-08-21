@@ -206,6 +206,13 @@ public class GraphUtils {
         return compileGraph(model, transportUrl, false);
     }
 
+    /**
+     * 
+     * @param model
+     * @param transportUrl
+     * @param resetUuid
+     * @return 
+     */
     public static Graph compileGraph(ProcessingModel model, String transportUrl, boolean resetUuid) {
         Graph graph = new Graph();
 
@@ -223,8 +230,13 @@ public class GraphUtils {
         } else {
             _transportUrl = transportUrl;
         }
-
+        String _serviceUrl = model.getServiceUrl();
+        String _luceneIndex = model.getLuceneIndex();
+        
         graph.setTransportUrl(_transportUrl);
+        graph.setSearviceUrl(_serviceUrl);
+        graph.setLuceneIndex(_luceneIndex);
+        
         graph.setColor(GraphVocabulary.UNTOUCHED);
         graph.setDirected(Boolean.TRUE);
 
@@ -270,7 +282,7 @@ public class GraphUtils {
             sourceGnode.setParams(_params);
 
             Output output = source.getOutput();
-            List<Attribute> attrs = source.getOutput().getAttributes();
+            List<Attribute> attrs = output.getAttributes();
             NodeOutput nodeOutput = new NodeOutput();
             nodeOutput.setName(output.getName());
             nodeOutput.setId(output.getId());
@@ -325,8 +337,8 @@ public class GraphUtils {
                 nodeInput.setAttributes(new HashMap());
                 nodeInput.setId(input.getId());
                 nodeInput.setName(input.getName());
-//                nodeInput.setSourceId(inputSource.getId().toString());
                 nodeInput.setSourceClassName(inputSource.getClass().getCanonicalName());
+                
                 List<Attribute> attrs = inputSource.getOutput().getAttributes();
                 NodeAttributes nodeattrs = new NodeAttributes();
                 nodeattrs.setAttributes(new HashMap<>());
@@ -342,7 +354,7 @@ public class GraphUtils {
             procGnode.setInput(nodeInputs);
 
             Output output = proc.getOutput();
-            List<Attribute> attrs = proc.getOutput().getAttributes();
+            List<Attribute> attrs = output.getAttributes();
             NodeOutput nodeOutput = new NodeOutput();
             nodeOutput.setName(output.getName());
             nodeOutput.setId(output.getId());
@@ -396,8 +408,8 @@ public class GraphUtils {
                 nodeInput.setAttributes(new HashMap());
                 nodeInput.setId(input.getId());
                 nodeInput.setName(input.getName());
-//                nodeInput.setSourceId(inputSource.getId().toString());
                 nodeInput.setSourceClassName(inputSource.getClass().getCanonicalName());
+                
                 List<Attribute> attrs = inputSource.getOutput().getAttributes();
                 NodeAttributes nodeattrs = new NodeAttributes();
                 nodeattrs.setAttributes(new HashMap<>());
@@ -414,13 +426,11 @@ public class GraphUtils {
             nodes.add(sinkGnode);
         });
         graph.setNodes(nodes);
-
         // Build node id lookup map
         Map<String, String> lookup = new HashMap<>();
         graph.getNodes().forEach((node) -> {
             lookup.put(node.getType(), node.getId());
         });
-
         // Create all edges
         graph.getNodes().forEach(node -> {
             if (Vocabulary.SOURCE.equalsIgnoreCase(node.getLabel())) {
@@ -523,11 +533,22 @@ public class GraphUtils {
     }
 
     /**
+     * 
+     * @param graphJson
+     * @param path
+     * @return 
+     */
+    public static Document graphLuceneDoc(String graphJson, String path) {
+        Graph graph = new Graph().fromJson(graphJson);
+        return graphLuceneDoc(graph, path);
+    }
+    /**
      *
      * @param graph
+     * @param path
      * @return
      */
-    public static Document graphLuceneDoc(Graph graph) {
+    public static Document graphLuceneDoc(Graph graph, String path) {
         Document graphDoc = new Document();
         FieldType meta = typeMeta();
         FieldType text = typeText();
