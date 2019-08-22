@@ -50,11 +50,11 @@ public class ModelLuceneIndex {
 
         try (IndexWriter writer = new IndexWriter(FSDirectory.open(Paths.get(luceneIndex)), indexWriterConfig)) {
             String jsonDoc = graph.toJson().toString();
-            
-            Multimap<String, Object> met = ArrayListMultimap.create();
+
+            Multimap<String, String> met = ArrayListMultimap.create();
             met.put("creator", "Lisa Park");
             met.put("creator", model.getAuthorEmail());
-            met.put("date", new Date());
+            met.put("date", new Date().toString());
             met.put("format", "text/xml");
             met.put("source", model.getModelJsonFile());
             met.put("subject", model.getName());
@@ -64,11 +64,11 @@ public class ModelLuceneIndex {
 
             met.keySet().forEach((key) -> {
                 met.get(key).stream().filter((val) -> (val != null)).forEachOrdered((val) -> {
-                    document.add(new TextField(key, (String) val, Field.Store.YES));
+                    document.add(new TextField(key, val, Field.Store.YES));
                 });
             });
             document.add(new TextField("contents", jsonDoc, Field.Store.YES));
-            
+
             if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
                 writer.addDocument(document);
             } else {
