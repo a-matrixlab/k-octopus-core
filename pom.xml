@@ -225,11 +225,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <artifactId>commons-math3</artifactId>
             <version>3.0</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>apache-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.7.0</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
