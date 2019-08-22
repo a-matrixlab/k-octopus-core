@@ -5,19 +5,19 @@
  */
 package org.lisapark.koctopus.core.lucene;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.lisapark.koctopus.core.ProcessingModel;
-import org.apache.tika.metadata.DublinCore;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.metadata.Property;
-import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
@@ -51,27 +51,22 @@ public class ModelLuceneIndex {
         try (IndexWriter writer = new IndexWriter(FSDirectory.open(Paths.get(luceneIndex)), indexWriterConfig)) {
             String jsonDoc = graph.toJson().toString();
             
-            Metadata met = new Metadata();
-            met.add(Metadata.CREATOR, "Lisa Park");
-            met.add(Metadata.CREATOR, model.getAuthorEmail());
-            met.set(Metadata.DATE, new Date());
-            met.set(Metadata.FORMAT, "text/xml");
-            met.set(DublinCore.SOURCE, model.getModelJsonFile());
-            met.add(Metadata.SUBJECT, model.getName());
-            met.add(Metadata.SUBJECT, model.getDescription());
-            met.add(Metadata.SUBJECT, model.getServiceUrl());
-            met.set(Property.externalClosedChoise(TikaCoreProperties.RIGHTS.getName(), "public", "private"), "public");
-
+            Multimap<String, Object> met = ArrayListMultimap.create();
+            met.put("creator", "Lisa Park");
+            met.put("creator", model.getAuthorEmail());
+            met.put("date", new Date());
+            met.put("format", "text/xml");
+            met.put("source", model.getModelJsonFile());
+            met.put("subject", model.getName());
+            met.put("subject", model.getDescription());
+            met.put("subject", model.getServiceUrl());
             org.apache.lucene.document.Document document = new org.apache.lucene.document.Document();
 
-            for (String key : met.names()) {
-                String[] values = met.getValues(key);
-                for (String val : values) {
-                    if (val != null) {
-                        document.add(new TextField(key, val, Field.Store.YES));
-                    }
-                }
-            }
+            met.keySet().forEach((key) -> {
+                met.get(key).stream().filter((val) -> (val != null)).forEachOrdered((val) -> {
+                    document.add(new TextField(key, (String) val, Field.Store.YES));
+                });
+            });
             document.add(new TextField("contents", jsonDoc, Field.Store.YES));
             
             if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
