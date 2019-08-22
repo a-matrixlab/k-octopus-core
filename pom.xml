@@ -70,7 +70,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <dependencies>   
         
         <!-- Jide Stuff -->
-        <dependency>
+        <!--dependency>
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-action</artifactId>
             <version>3.4.7</version>
@@ -94,7 +94,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-grids</artifactId>
             <version>3.4.7</version>
-        </dependency>
+        </dependency-->
 
         <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-core -->
         <dependency>
@@ -182,11 +182,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </dependency-->
 
         <!-- Netbeans -->        
-        <dependency>
+        <!--dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-visual</artifactId>
             <version>RELEASE701</version>
-        </dependency>
+        </dependency-->
 
         <!-- DB4O -->        
         <!--dependency>

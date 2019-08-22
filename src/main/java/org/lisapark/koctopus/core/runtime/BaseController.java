@@ -17,6 +17,8 @@
 package org.lisapark.koctopus.core.runtime;
 
 import com.google.gson.Gson;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.graph.Gnode;
@@ -26,13 +28,14 @@ import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
 
 /**
  *
  * @author alexmy
  */
 public class BaseController {
+    
+    static final Logger LOG = Logger.getLogger(BaseController.class.getName());
 
     enum Status {
         SUCCESS(200),
@@ -103,7 +106,7 @@ public class BaseController {
                     break;
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
         return result;
     }

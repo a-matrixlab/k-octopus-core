@@ -51,7 +51,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.openide.util.Exceptions;
 
 /**
  * Index all text files under a directory.
@@ -227,7 +226,7 @@ public class BaseDocLuceneIndex {
                 writer.updateDocument(new Term("path", file), doc);
             }
         } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
     }
 }

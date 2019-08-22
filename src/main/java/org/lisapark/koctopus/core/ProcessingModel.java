@@ -29,9 +29,10 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.gson.Gson;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.parameter.StringParameter;
-import org.openide.util.Exceptions;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com) 03/06/2013 Alex Mylnikov
@@ -39,6 +40,8 @@ import org.openide.util.Exceptions;
  */
 @Persistable
 public class ProcessingModel extends AbstractNode implements Validatable {
+    
+    static final Logger LOG = Logger.getLogger(ProcessingModel.class.getName());
 
     private DateTime lastSaved;
 
@@ -111,7 +114,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         try {
             this.getParameter(SERVICE_URL_ID).setValueFromString(serviceUrl);
         } catch (ValidationException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
     }
 
@@ -129,7 +132,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         try {
             this.getParameter(TRANSPORT_URL_ID).setValueFromString(transportUrl);
         } catch (ValidationException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
     }
 
@@ -141,7 +144,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         try {
             this.getParameter(LUCENE_INDEX_ID).setValueFromString(luceneIndex);
         } catch (ValidationException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
     }
 
@@ -153,7 +156,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         try {
             this.getParameter(MODEL_JSON_FILE_ID).setValueFromString(jsonFile);
         } catch (ValidationException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
     }
 

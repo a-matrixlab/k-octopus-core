@@ -17,6 +17,8 @@
 package org.lisapark.koctopus.core.runtime;
 
 import com.google.gson.Gson;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.graph.Gnode;
@@ -26,13 +28,14 @@ import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
 
 /**
  *
  * @author alexmy
  */
 public class OctopusRunner extends AbstractRunner<Integer> {
+    
+    static final Logger LOG = Logger.getLogger(OctopusRunner.class.getName());
 
     public OctopusRunner() {
         super();
@@ -80,7 +83,7 @@ public class OctopusRunner extends AbstractRunner<Integer> {
                     break;
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ValidationException | ProcessingException ex) {
-            Exceptions.printStackTrace(ex);
+            LOG.log(Level.SEVERE, ex.getMessage());
         }
         return new Gson().toJson(gnode);
     }

@@ -19,6 +19,8 @@ package org.lisapark.koctopus;
 import com.google.gson.Gson;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lisapark.koctopus.core.ModelGraph;
 import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.ProcessorBean;
@@ -30,13 +32,14 @@ import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.runtime.AbstractRunner;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
 
 /**
  *
  * @author Alex Mylnikov (alexmy@lisa-park.com)
  */
 public class ModelRunner {
+    
+    static final Logger LOG = Logger.getLogger(ModelRunner.class.getName());
 
     public static final String MODEL_NAME = "modelname";
     public static final String MODEL_JSON = "modeljson";
@@ -158,7 +161,7 @@ public class ModelRunner {
                         try {
                             param.setValueFromString(sourceParams.get(beanParamName).toString());
                         } catch (ValidationException ex) {
-                            Exceptions.printStackTrace(ex);
+                            LOG.log(Level.SEVERE, ex.getMessage());
                         }
                     }
                 });
@@ -179,7 +182,7 @@ public class ModelRunner {
                         try {
                             param.setValueFromString(processorParams.get(beanParamName).toString());
                         } catch (ValidationException ex) {
-                            Exceptions.printStackTrace(ex);
+                            LOG.log(Level.SEVERE, ex.getMessage());
                         }
                     }
                 });
@@ -200,7 +203,7 @@ public class ModelRunner {
                         try {
                             param.setValueFromString(sinkParams.get(beanParamName).toString());
                         } catch (ValidationException ex) {
-                            Exceptions.printStackTrace(ex);
+                            LOG.log(Level.SEVERE, ex.getMessage());
                         }
                     }
                 });

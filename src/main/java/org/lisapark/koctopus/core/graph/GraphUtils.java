@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -42,13 +44,14 @@ import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.Source;
 import org.lisapark.koctopus.core.source.external.ExternalSource;
-import org.openide.util.Exceptions;
 
 /**
  *
  * @author alexmy
  */
 public class GraphUtils {
+    
+    static final Logger LOG = Logger.getLogger(GraphUtils.class.getName());
 
     /**
      *
@@ -65,7 +68,7 @@ public class GraphUtils {
                     String value = _param.getValue() == null ? null : _param.getValue().toString();
                     param.setValueFromString(value);
                 } catch (ValidationException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
         });
@@ -78,7 +81,7 @@ public class GraphUtils {
                     newAttr = Attribute.newAttributeByClassName(att.getClassName(), name);
                     output.addAttribute(newAttr);
                 } catch (ValidationException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
         });
@@ -100,7 +103,7 @@ public class GraphUtils {
                     String value = _param.getValue() == null ? null : _param.getValue().toString();
                     param.setValueFromString(value);
                 } catch (ValidationException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
         });
@@ -128,7 +131,7 @@ public class GraphUtils {
                     ref.setAttributes(_input.getAttributes());
                     sink.getReferences().put(input.getName(), ref);
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
         });
@@ -149,7 +152,7 @@ public class GraphUtils {
                     String value = _param.getValue() == null ? null : _param.getValue().toString();
                     param.setValueFromString(value);
                 } catch (ValidationException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
         });
@@ -177,7 +180,7 @@ public class GraphUtils {
                     processor.getReferences().put(input.getName(), ref);
                 }
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                Exceptions.printStackTrace(ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
             }
         });
         final NodeOutput goutput = (NodeOutput) gnode.getOutput();
@@ -189,7 +192,7 @@ public class GraphUtils {
                     newAttr = Attribute.newAttributeByClassName(att.getClassName(), name);
                     output.addAttribute(newAttr);
                 } catch (ValidationException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
         });
@@ -473,7 +476,7 @@ public class GraphUtils {
                     String value = _param.getValue() == null ? null : _param.getValue().toString();
                     param.setValueFromString(value);
                 } catch (ValidationException ex) {
-                    Exceptions.printStackTrace(ex);
+                    LOG.log(Level.SEVERE, ex.getMessage());
                 }
             }
         });
@@ -511,7 +514,7 @@ public class GraphUtils {
                         break;
                 }
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                Exceptions.printStackTrace(ex);
+                LOG.log(Level.SEVERE, ex.getMessage());
             }
         });
         // Set all connections for processor and sink nodes inputs
