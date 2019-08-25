@@ -237,7 +237,7 @@ public class GraphUtils {
         String _luceneIndex = model.getLuceneIndex();
         
         graph.setTransportUrl(_transportUrl);
-        graph.setSearviceUrl(_serviceUrl);
+        graph.setServiceUrl(_serviceUrl);
         graph.setLuceneIndex(_luceneIndex);
         
         graph.setColor(GraphVocabulary.UNTOUCHED);
