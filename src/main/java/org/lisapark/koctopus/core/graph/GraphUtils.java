@@ -50,7 +50,7 @@ import org.lisapark.koctopus.core.source.external.ExternalSource;
  * @author alexmy
  */
 public class GraphUtils {
-    
+
     static final Logger LOG = Logger.getLogger(GraphUtils.class.getName());
 
     /**
@@ -210,16 +210,18 @@ public class GraphUtils {
     }
 
     /**
-     * 
+     *
      * @param model
      * @param transportUrl
      * @param resetUuid
-     * @return 
+     * @return
      */
     public static Graph compileGraph(ProcessingModel model, String transportUrl, boolean resetUuid) {
         Graph graph = new Graph();
 
-        UUID uuid = resetUuid ? Generators.timeBasedGenerator().generate() : model.getId();
+        final Boolean  _resetUuid = false;
+        
+        UUID uuid = _resetUuid ? Generators.timeBasedGenerator().generate() : model.getId();
         graph.setId(uuid.toString());
         graph.setLabel(Vocabulary.MODEL);
         graph.setType(Vocabulary.OCTOPUS_RUNNER);
@@ -235,11 +237,11 @@ public class GraphUtils {
         }
         String _serviceUrl = model.getServiceUrl();
         String _luceneIndex = model.getLuceneIndex();
-        
+
         graph.setTransportUrl(_transportUrl);
         graph.setServiceUrl(_serviceUrl);
         graph.setLuceneIndex(_luceneIndex);
-        
+
         graph.setColor(GraphVocabulary.UNTOUCHED);
         graph.setDirected(Boolean.TRUE);
 
@@ -263,7 +265,7 @@ public class GraphUtils {
         Set<ExternalSource> sources = model.getExternalSources();
         sources.stream().forEach((ExternalSource source) -> {
             Gnode sourceGnode = new Gnode();
-            UUID uuid_1 = resetUuid ? Generators.timeBasedGenerator().generate() : source.getId();
+            UUID uuid_1 = _resetUuid ? Generators.timeBasedGenerator().generate() : source.getId();
             sourceGnode.setId(uuid_1.toString());
             sourceGnode.setLabel(Vocabulary.SOURCE);
             sourceGnode.setType(source.getClass().getCanonicalName());
@@ -308,7 +310,7 @@ public class GraphUtils {
         Set<AbstractProcessor> processors = model.getProcessors();
         processors.stream().forEach((AbstractProcessor proc) -> {
             Gnode procGnode = new Gnode();
-            UUID uuid_2 = resetUuid ? Generators.timeBasedGenerator().generate() : proc.getId();
+            UUID uuid_2 = _resetUuid ? Generators.timeBasedGenerator().generate() : proc.getId();
             procGnode.setId(uuid_2.toString());
             procGnode.setLabel(Vocabulary.PROCESSOR);
             procGnode.setType(proc.getClass().getCanonicalName());
@@ -341,7 +343,8 @@ public class GraphUtils {
                 nodeInput.setId(input.getId());
                 nodeInput.setName(input.getName());
                 nodeInput.setSourceClassName(inputSource.getClass().getCanonicalName());
-                
+                nodeInput.setSourceId(inputSource.getId().toString());
+
                 List<Attribute> attrs = inputSource.getOutput().getAttributes();
                 NodeAttributes nodeattrs = new NodeAttributes();
                 nodeattrs.setAttributes(new HashMap<>());
@@ -380,7 +383,7 @@ public class GraphUtils {
         Set<ExternalSink> sinks = model.getExternalSinks();
         sinks.stream().forEach((ExternalSink sink) -> {
             Gnode sinkGnode = new Gnode();
-            UUID uuid_3 = resetUuid ? Generators.timeBasedGenerator().generate() : sink.getId();
+            UUID uuid_3 = _resetUuid ? Generators.timeBasedGenerator().generate() : sink.getId();
             sinkGnode.setId(uuid_3.toString());
             sinkGnode.setLabel(Vocabulary.SINK);
             sinkGnode.setType(sink.getClass().getCanonicalName());
@@ -412,7 +415,8 @@ public class GraphUtils {
                 nodeInput.setId(input.getId());
                 nodeInput.setName(input.getName());
                 nodeInput.setSourceClassName(inputSource.getClass().getCanonicalName());
-                
+                nodeInput.setSourceId(inputSource.getId().toString());
+
                 List<Attribute> attrs = inputSource.getOutput().getAttributes();
                 NodeAttributes nodeattrs = new NodeAttributes();
                 nodeattrs.setAttributes(new HashMap<>());
@@ -430,10 +434,10 @@ public class GraphUtils {
         });
         graph.setNodes(nodes);
         // Build node id lookup map
-        Map<String, String> lookup = new HashMap<>();
-        graph.getNodes().forEach((node) -> {
-            lookup.put(node.getType(), node.getId());
-        });
+//        Map<String, String> lookup = new HashMap<>();
+//        graph.getNodes().forEach((node) -> {
+//            lookup.put(node.getType(), node.getId());
+//        });
         // Create all edges
         graph.getNodes().forEach(node -> {
             if (Vocabulary.SOURCE.equalsIgnoreCase(node.getLabel())) {
@@ -446,9 +450,9 @@ public class GraphUtils {
                     edge.setRelation(input.getName());
                     edge.setDirected(true);
 
-                    String sourceNodeId = lookup.get(input.getSourceClassName());
-                    input.setSourceId(sourceNodeId);
-                    edge.setSource(input.getSourceClassName() + ":" + sourceNodeId);
+//                    String sourceNodeId = lookup.get(input.getSourceClassName());
+//                    input.setSourceId(sourceNodeId);
+                    edge.setSource(input.getSourceClassName() + ":" + input.getSourceId());
                     edge.setTarget(node.getType() + ":" + node.getId());
                     edges.add(edge);
                 });
@@ -521,30 +525,43 @@ public class GraphUtils {
         model.getProcessors().forEach((AbstractProcessor proc) -> {
             List<? extends Input> inputs = proc.getInputs();
             inputs.forEach((input) -> {
-                String uuid = input.getSource().getId().toString();
-                input.connectSource((Source) lookupModel.get(uuid));
+                if (input != null) {
+                    String uuid = input.getSource().getId().toString();
+                    if (lookupModel.get(uuid) instanceof Source) {
+                        input.connectSource((Source) lookupModel.get(uuid));
+                    } else {
+                        input.connectSource((AbstractProcessor) lookupModel.get(uuid));
+                    }
+                }
             });
         });
         model.getExternalSinks().forEach((ExternalSink sink) -> {
             List<? extends Input> inputs = sink.getInputs();
             inputs.forEach((Input input) -> {
-                String uuid = input.getSource().getId().toString();
-                input.connectSource((Source) lookupModel.get(uuid));
+                if (input != null) {
+                    String uuid = input.getSource().getId().toString();
+                    if (lookupModel.get(uuid) instanceof Source) {
+                        input.connectSource((Source) lookupModel.get(uuid));
+                    } else {
+                        input.connectSource((AbstractProcessor) lookupModel.get(uuid));
+                    }
+                }
             });
         });
         return model;
     }
 
     /**
-     * 
+     *
      * @param graphJson
      * @param path
-     * @return 
+     * @return
      */
     public static Document graphLuceneDoc(String graphJson, String path) {
         Graph graph = new Graph().fromJson(graphJson);
         return graphLuceneDoc(graph, path);
     }
+
     /**
      *
      * @param graph
@@ -570,7 +587,7 @@ public class GraphUtils {
         text.setTokenized(true);
         text.setStored(true);
         text.freeze();
-        
+
         return text;
     }
 
