@@ -27,7 +27,7 @@ import org.lisapark.koctopus.core.graph.api.Vocabulary;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
-import org.lisapark.koctopus.core.source.external.ExternalSource;
+import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
 /**
  *
@@ -70,8 +70,8 @@ public class BaseController {
             switch (gnode.getLabel()) {
                 case Vocabulary.SOURCE:
                     type = gnode.getType();
-                    ExternalSource sourceIns = (ExternalSource) Class.forName(type).newInstance();
-                    ExternalSource source = (ExternalSource) sourceIns.newInstance(gnode);
+                    AbstractExternalSource sourceIns = (AbstractExternalSource) Class.forName(type).newInstance();
+                    AbstractExternalSource source = (AbstractExternalSource) sourceIns.newInstance(gnode);
                     result = new Gson().toJson(gnode);
                     source.compile(source).startProcessingEvents(runtime);
 

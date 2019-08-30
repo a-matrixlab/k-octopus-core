@@ -43,7 +43,7 @@ import org.lisapark.koctopus.core.processor.ProcessorOutput;
 import org.lisapark.koctopus.core.runtime.redis.StreamReference;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.Source;
-import org.lisapark.koctopus.core.source.external.ExternalSource;
+import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
 /**
  *
@@ -58,7 +58,7 @@ public class GraphUtils {
      * @param source
      * @param gnode
      */
-    public static void buildSource(ExternalSource source, Gnode gnode) {
+    public static void buildSource(AbstractExternalSource source, Gnode gnode) {
         NodeParams gparams = (NodeParams) gnode.getParams();
         Set<Parameter> params = source.getParameters();
         params.forEach((Parameter param) -> {
@@ -119,8 +119,8 @@ public class GraphUtils {
                         AbstractProcessor proc = (AbstractProcessor) source;
                         proc.setId(UUID.fromString(_input.getSourceId()));
                         input.connectSource(proc);
-                    } else if (source instanceof ExternalSource) {
-                        ExternalSource exsource = (ExternalSource) source;
+                    } else if (source instanceof AbstractExternalSource) {
+                        AbstractExternalSource exsource = (AbstractExternalSource) source;
                         exsource.setId(UUID.fromString(_input.getSourceId()));
                         input.connectSource(exsource);
                     }
@@ -168,8 +168,8 @@ public class GraphUtils {
                         AbstractProcessor proc = (AbstractProcessor) source;
                         proc.setId(UUID.fromString(_input.getSourceId()));
                         input.connectSource(proc);
-                    } else if (source instanceof ExternalSource) {
-                        ExternalSource exsource = (ExternalSource) source;
+                    } else if (source instanceof AbstractExternalSource) {
+                        AbstractExternalSource exsource = (AbstractExternalSource) source;
                         exsource.setId(UUID.fromString(_input.getSourceId()));
                         input.connectSource(exsource);
                     }
@@ -262,8 +262,8 @@ public class GraphUtils {
 
         // Sources
         //======================================================================
-        Set<ExternalSource> sources = model.getExternalSources();
-        sources.stream().forEach((ExternalSource source) -> {
+        Set<AbstractExternalSource> sources = model.getExternalSources();
+        sources.stream().forEach((AbstractExternalSource source) -> {
             Gnode sourceGnode = new Gnode();
             UUID uuid_1 = _resetUuid ? Generators.timeBasedGenerator().generate() : source.getId();
             sourceGnode.setId(uuid_1.toString());
@@ -492,8 +492,8 @@ public class GraphUtils {
                 switch (gnode.getLabel()) {
                     case Vocabulary.SOURCE:
                         type = gnode.getType();
-                        ExternalSource sourceIns = (ExternalSource) Class.forName(type).newInstance();
-                        ExternalSource source = (ExternalSource) sourceIns.newInstance(gnode);
+                        AbstractExternalSource sourceIns = (AbstractExternalSource) Class.forName(type).newInstance();
+                        AbstractExternalSource source = (AbstractExternalSource) sourceIns.newInstance(gnode);
                         source.setLocation(new Point(gnode.getX(), gnode.getY()));
                         model.addExternalEventSource(source);
                         lookupModel.put(source.getId().toString(), source);

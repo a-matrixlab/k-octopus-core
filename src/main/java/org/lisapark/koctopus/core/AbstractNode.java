@@ -28,7 +28,7 @@ import java.util.UUID;
 import javax.swing.*;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
-import org.lisapark.koctopus.core.source.external.ExternalSource;
+import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
 /**
  * Abstract Base class implementation of the {@link Node} interface that contains a {@link #name}, {@link #description}
@@ -221,7 +221,7 @@ public abstract class AbstractNode implements Node {
         String type;
         if (this instanceof ExternalSink) {
             type = JsonUtils.SINK;
-        } else if (this instanceof ExternalSource) {
+        } else if (this instanceof AbstractExternalSource) {
             type = JsonUtils.SOURCE;
         } else {
             type = JsonUtils.PROCESSOR;

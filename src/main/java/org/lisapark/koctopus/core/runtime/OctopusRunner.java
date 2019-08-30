@@ -17,6 +17,9 @@
 package org.lisapark.koctopus.core.runtime;
 
 import com.google.gson.Gson;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lisapark.koctopus.core.ProcessingException;
@@ -26,15 +29,15 @@ import org.lisapark.koctopus.core.graph.Graph;
 import org.lisapark.koctopus.core.graph.api.Vocabulary;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
-import org.lisapark.koctopus.core.sink.external.ExternalSink;
-import org.lisapark.koctopus.core.source.external.ExternalSource;
+import org.lisapark.koctopus.core.sink.external.AbstractExternalSink;
+import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
 /**
  *
  * @author alexmy
  */
 public class OctopusRunner extends AbstractRunner<Integer> {
-    
+
     static final Logger LOG = Logger.getLogger(OctopusRunner.class.getName());
 
     public OctopusRunner() {
@@ -47,35 +50,66 @@ public class OctopusRunner extends AbstractRunner<Integer> {
 
     @Override
     public String processNode(Gnode gnode, boolean forward) {
-
         String trnsUrl = gnode.getTransportUrl();
         RedisRuntime runtime = new RedisRuntime(trnsUrl, getStandardOut(), getStandardError());
         Integer status;
-
         try {
             String type;
             switch (gnode.getLabel()) {
                 case Vocabulary.SOURCE:
                     type = gnode.getType();
-                    ExternalSource sourceIns = (ExternalSource) Class.forName(type).newInstance();
-                    ExternalSource source = (ExternalSource) sourceIns.newInstance(gnode);
-                    status = (Integer) source.compile(source).startProcessingEvents(runtime);
-                    getNodeStatus().put(gnode.getId(), status);
+                    AbstractExternalSource sourceIns = (AbstractExternalSource) Class.forName(type).newInstance();
+                    AbstractExternalSource source = (AbstractExternalSource) sourceIns.newInstance(gnode);
 
+                    String sourceUrl = source.getServiceUrl();
+                    if (sourceUrl == null || sourceUrl.trim().isEmpty()) {
+                        status = (Integer) source.compile(source).startProcessingEvents(runtime);
+                    } else {
+                        try {
+                            RuntimeUtils.runRemoteModel(sourceUrl, gnode.toJson().toString());
+                            status = Vocabulary.COMPLETE;
+                        } catch (IOException ex) {
+                            status = processException(ex, sourceUrl);
+                        }
+                    }
+                    getNodeStatus().put(gnode.getId(), status);
                     break;
+
                 case Vocabulary.PROCESSOR:
                     type = gnode.getType();
                     AbstractProcessor processorIns = (AbstractProcessor) Class.forName(type).newInstance();
                     AbstractProcessor processor = (AbstractProcessor) processorIns.newInstance(gnode);
-                    status = (Integer) processor.compile(processor).processEvent(runtime);
+                    
+                    String procUrl = processor.getServiceUrl();
+                    if (procUrl == null || procUrl.trim().isEmpty()) {
+                        status = (Integer) processor.compile(processor).processEvent(runtime);
+                    } else {
+                        try {
+                            RuntimeUtils.runRemoteModel(procUrl, gnode.toJson().toString());
+                            status = Vocabulary.COMPLETE;
+                        } catch (IOException ex) {
+                            status = processException(ex, procUrl);
+                        }
+                    }
                     getNodeStatus().put(gnode.getId(), status);
 
                     break;
                 case Vocabulary.SINK:
                     type = gnode.getType();
-                    ExternalSink sinkIns = (ExternalSink) Class.forName(type).newInstance();
-                    ExternalSink sink = (ExternalSink) sinkIns.newInstance(gnode);
+                    AbstractExternalSink sinkIns = (AbstractExternalSink) Class.forName(type).newInstance();
+                    AbstractExternalSink sink = (AbstractExternalSink) sinkIns.newInstance(gnode);
+                    
+                    String sinkUrl = sink.getServiceUrl();
+                    if (sinkUrl == null || sinkUrl.trim().isEmpty()) {
                     status = (Integer) sink.compile(sink).processEvent(runtime);
+                    } else {
+                        try {
+                            RuntimeUtils.runRemoteModel(sinkUrl, gnode.toJson().toString());
+                            status = Vocabulary.COMPLETE;
+                        } catch (IOException ex) {
+                            status = processException(ex, sinkUrl);
+                        }
+                    }
                     getNodeStatus().put(gnode.getId(), status);
 
                     break;
@@ -85,6 +119,20 @@ public class OctopusRunner extends AbstractRunner<Integer> {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ValidationException | ProcessingException ex) {
             LOG.log(Level.SEVERE, ex.getMessage());
         }
+
         return new Gson().toJson(gnode);
+    }
+
+    private Integer processException(Exception ex, String procUrl) {
+        Integer status;
+        List<String> errList = new ArrayList<>();
+        errList.add(ex.getMessage());
+        errList.add("\n----------------------------------------");
+        errList.add("\nError processing Request: " + ex.getMessage());
+        errList.add("\nInvalid URL:\n");
+        errList.add(procUrl);
+        LOG.log(Level.SEVERE, errList.toString());
+        status = Vocabulary.CANCEL;
+        return status;
     }
 }

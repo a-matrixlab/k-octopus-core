@@ -23,7 +23,7 @@ import org.joda.time.DateTime;
 import org.lisapark.koctopus.core.event.Attribute;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
-import org.lisapark.koctopus.core.source.external.ExternalSource;
+import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
 import java.util.Set;
 
@@ -54,7 +54,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     private final int LUCENE_INDEX_ID = 7;
     private final int MODEL_JSON_FILE_ID = 8;
 
-    private final Set<ExternalSource> externalSources = Sets.newHashSet();
+    private final Set<AbstractExternalSource> externalSources = Sets.newHashSet();
     private final Set<AbstractProcessor> processors = Sets.newHashSet();
     private final Set<ExternalSink> externalSinks = Sets.newHashSet();
 
@@ -95,7 +95,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         this.lastSaved = lastSaved;
     }
 
-    public void addExternalEventSource(ExternalSource source) {
+    public void addExternalEventSource(AbstractExternalSource source) {
         checkArgument(source != null, "source cannot be null");
         externalSources.add(source);
     }
@@ -162,13 +162,13 @@ public class ProcessingModel extends AbstractNode implements Validatable {
 
     /**
      * Removes the specified
-     * {@link org.lisapark.koctopus.core.source.external.ExternalSource} from
+     * {@link org.lisapark.koctopus.core.source.external.AbstractExternalSource} from
      * this model. Doing so will remove any connections between this source and
      * any other sink or processor.
      *
      * @param source to remove from model
      */
-    public void removeExternalEventSource(ExternalSource source) {
+    public void removeExternalEventSource(AbstractExternalSource source) {
         checkArgument(externalSources.contains(source), "Model does not contain source " + source);
 
         externalSinks.stream().filter((candidateSink) -> (candidateSink.isConnectedTo(source))).forEachOrdered((candidateSink) -> {
@@ -232,7 +232,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
      * @param attribute to check usage of
      * @return true if the attribute of the specified source is in use
      */
-    public boolean isExternalSourceAttributeInUse(ExternalSource source, Attribute attribute) {
+    public boolean isExternalSourceAttributeInUse(AbstractExternalSource source, Attribute attribute) {
         checkArgument(source != null, "source cannot be null");
         checkArgument(attribute != null, "attribute cannot be null");
         boolean inUse = false;
@@ -251,13 +251,13 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     }
 
     /**
-     * Returns true if the specified {@link ExternalSource} is in use anywhere
+     * Returns true if the specified {@link AbstractExternalSource} is in use anywhere
      * in the current model.
      *
      * @param source to check
      * @return true if the specified source is in use
      */
-    public boolean isExternalSourceInUse(ExternalSource source) {
+    public boolean isExternalSourceInUse(AbstractExternalSource source) {
         checkArgument(source != null, "source cannot be null");
         boolean inUse = false;
         for (ExternalSink candidateSink : externalSinks) {
@@ -274,7 +274,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         return inUse;
     }
 
-    public Set<ExternalSource> getExternalSources() {
+    public Set<AbstractExternalSource> getExternalSources() {
         return ImmutableSet.copyOf(externalSources);
     }
 
@@ -296,7 +296,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     @Override
     public void validate() throws ValidationException {
         // todo verify all connections??
-        for (ExternalSource source : externalSources) {
+        for (AbstractExternalSource source : externalSources) {
             source.validate();
         }
         for (AbstractProcessor<?> processor : processors) {
@@ -313,7 +313,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
      */
     @Override
     public void complete() {
-        Set<ExternalSource> sourceset = getExternalSources();
+        Set<AbstractExternalSource> sourceset = getExternalSources();
         Set<AbstractProcessor> processorset = getProcessors();
         Set<ExternalSink> sinkset = getExternalSinks();
 
@@ -369,7 +369,7 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     //==========================================================================
     private Set<String> buildSources() {
 
-        Set<ExternalSource> sourceset = getExternalSources();
+        Set<AbstractExternalSource> sourceset = getExternalSources();
         Set<String> sources = Sets.newHashSet();
 
         sourceset.forEach((item) -> {

@@ -19,7 +19,7 @@ package org.lisapark.koctopus.core;
 import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
-import org.lisapark.koctopus.core.source.external.ExternalSource;
+import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
 import java.util.List;
 import java.util.Set;
@@ -56,7 +56,7 @@ public interface OctopusRepository {
 //    Set<ExternalSink>           getExternalSinkTemplateByClassName(String name) throws RepositoryException;
     
 
-    List<ExternalSource>        getAllExternalSourceTemplates() throws RepositoryException;    
+    List<AbstractExternalSource>        getAllExternalSourceTemplates() throws RepositoryException;    
 //    Set<ExternalSource>         getExternalSourceTemplates(String name) throws RepositoryException;    
 //    Set<ExternalSource>         getExternalSourceTemplateByClassName(String name) throws RepositoryException;
     

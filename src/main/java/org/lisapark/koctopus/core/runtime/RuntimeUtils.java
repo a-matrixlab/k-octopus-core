@@ -21,6 +21,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -40,7 +41,7 @@ public class RuntimeUtils {
 
     static final Logger LOG = Logger.getLogger(RuntimeUtils.class.getName());
 
-    public static List<String> runRemoteModel(String serviceUrl, String graph) {
+    public static List<String> runRemoteModel(String serviceUrl, String graph) throws UnsupportedEncodingException, IOException {
         List<String> output = new ArrayList<>();
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
@@ -59,12 +60,6 @@ public class RuntimeUtils {
                 String json = gson.toJson(jelem);
                 output.add(json);
             }
-        } catch (IOException | NullPointerException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage());
-            output.add("\n----------------------------------------");
-            output.add("\nError processing Request: " + ex.getMessage());
-            output.add("\nInvalid URL:\n");
-            output.add(serviceUrl);
         } finally {
             try {
                 httpclient.close();

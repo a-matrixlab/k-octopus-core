@@ -48,7 +48,11 @@ import org.lisapark.koctopus.core.runtime.redis.StreamReference;
  */
 @Persistable
 public abstract class AbstractProcessor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
-
+    
+    private static final int TRANSPORT_PARAMETER_ID = 77777;
+    private static final int SERVICE_PARAMETER_ID = 88888;
+    private static final int LUCENE_PARAMETER_ID = 99999;
+    
     /**
      * A processor will be given zero or more inputs in order to perform its processing; this will be the
      * list of all of these inputs.
@@ -75,6 +79,19 @@ public abstract class AbstractProcessor<MEMORY_TYPE> extends AbstractNode implem
      */
     protected AbstractProcessor(UUID id, String name, String description) {
         super(id, name, description);
+        
+        super.addParameter(
+                Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Transport URL").
+                        description("Transport URL.").
+                        defaultValue(""));
+        super.addParameter(
+                Parameter.stringParameterWithIdAndName(SERVICE_PARAMETER_ID, "Service URL").
+                        description("Service URL.").
+                        defaultValue(""));
+        super.addParameter(
+                Parameter.stringParameterWithIdAndName(LUCENE_PARAMETER_ID, "Lucene URL").
+                        description("Lucene URL.").
+                        defaultValue(""));
     }
 
     /**
@@ -100,6 +117,33 @@ public abstract class AbstractProcessor<MEMORY_TYPE> extends AbstractNode implem
     protected AbstractProcessor(AbstractProcessor<MEMORY_TYPE> copyFromProcessor) {
         super(copyFromProcessor);
         deepCopyOf(copyFromProcessor);
+    }
+ 
+    @SuppressWarnings("unchecked")
+    public void setLuceneIndex(String luceneIndex) throws ValidationException {
+        getParameter(LUCENE_PARAMETER_ID).setValue(luceneIndex);
+    }
+
+    public String getLuceneIndex() {
+        return getParameter(LUCENE_PARAMETER_ID).getValueAsString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setTransportUrl(String transportUrl) throws ValidationException {
+        getParameter(TRANSPORT_PARAMETER_ID).setValue(transportUrl);
+    }
+
+    public String getTransportUrl() {
+        return getParameter(TRANSPORT_PARAMETER_ID).getValueAsString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setServiceUrl(String serviceUrl) throws ValidationException {
+        getParameter(SERVICE_PARAMETER_ID).setValue(serviceUrl);
+    }
+
+    public String getServiceUrl() {
+        return getParameter(SERVICE_PARAMETER_ID).getValueAsString();
     }
 
     private void deepCopyOf(AbstractProcessor<MEMORY_TYPE> copyFromProcessor) {

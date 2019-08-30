@@ -31,7 +31,7 @@ import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.runtime.AbstractRunner;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
-import org.lisapark.koctopus.core.source.external.ExternalSource;
+import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
 /**
  *
@@ -150,7 +150,7 @@ public class ModelRunner {
      */
     private void setSourceParams(Map sourceParams) {
         if (sourceParams != null) {
-            Set<ExternalSource> extSources = this.getModel().getExternalSources();
+            Set<AbstractExternalSource> extSources = this.getModel().getExternalSources();
             extSources.stream().map((extSource) -> extSource.getParameters()).forEachOrdered((params) -> {
                 params.forEach((param) -> {
                     // get param name from the ProcessingModel
