@@ -66,7 +66,7 @@ public class OctopusRunner extends AbstractRunner<Integer> {
                         status = (Integer) source.compile(source).startProcessingEvents(runtime);
                     } else {
                         try {
-                            RuntimeUtils.runRemoteModel(sourceUrl, gnode.toJson().toString());
+                            RuntimeUtils.runRemote(sourceUrl, gnode.toJson().toString());
                             status = Vocabulary.COMPLETE;
                         } catch (IOException ex) {
                             status = processException(ex, sourceUrl);
@@ -85,7 +85,7 @@ public class OctopusRunner extends AbstractRunner<Integer> {
                         status = (Integer) processor.compile(processor).processEvent(runtime);
                     } else {
                         try {
-                            RuntimeUtils.runRemoteModel(procUrl, gnode.toJson().toString());
+                            RuntimeUtils.runRemote(procUrl, gnode.toJson().toString());
                             status = Vocabulary.COMPLETE;
                         } catch (IOException ex) {
                             status = processException(ex, procUrl);
@@ -104,7 +104,7 @@ public class OctopusRunner extends AbstractRunner<Integer> {
                     status = (Integer) sink.compile(sink).processEvent(runtime);
                     } else {
                         try {
-                            RuntimeUtils.runRemoteModel(sinkUrl, gnode.toJson().toString());
+                            RuntimeUtils.runRemote(sinkUrl, gnode.toJson().toString());
                             status = Vocabulary.COMPLETE;
                         } catch (IOException ex) {
                             status = processException(ex, sinkUrl);

@@ -41,7 +41,7 @@ public class RuntimeUtils {
 
     static final Logger LOG = Logger.getLogger(RuntimeUtils.class.getName());
 
-    public static List<String> runRemoteModel(String serviceUrl, String graph) throws UnsupportedEncodingException, IOException {
+    public static List<String> runRemote(String serviceUrl, String graph) throws UnsupportedEncodingException, IOException {
         List<String> output = new ArrayList<>();
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {

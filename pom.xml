@@ -37,7 +37,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </properties>
 
     <repositories>
-        
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
         <repository>
             <id>netbeans</id>
             <name>netbeans</name>
@@ -68,32 +71,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </repositories>
 
     <dependencies>   
-        
-        <!-- Jide Stuff -->
         <!--dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-action</artifactId>
-            <version>3.4.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-common</artifactId>
-            <version>3.4.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-components</artifactId>
-            <version>3.4.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-dock</artifactId>
-            <version>3.4.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-grids</artifactId>
-            <version>3.4.7</version>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>3.2.0-SNAPSHOT</version>
         </dependency-->
 
         <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-core -->
