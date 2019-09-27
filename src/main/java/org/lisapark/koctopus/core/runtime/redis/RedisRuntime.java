@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.lisapark.koctopus.core.event.Event;
 import org.lisapark.koctopus.core.runtime.StreamingRuntime;
 
 /**
@@ -205,6 +204,8 @@ public class RedisRuntime implements StreamingRuntime<StreamMessage<String, Stri
                 }
             }
         } finally {
+            // Shutdown Lettuce Redis client
+            client.shutdown();
             readLock.unlock();
         }
         if (interrupted) {

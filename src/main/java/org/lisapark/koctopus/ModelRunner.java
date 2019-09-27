@@ -26,7 +26,6 @@ import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.ProcessorBean;
 import org.lisapark.koctopus.core.ValidationException;
 import org.lisapark.koctopus.core.graph.Graph;
-import org.lisapark.koctopus.core.graph.GraphUtils;
 import org.lisapark.koctopus.core.parameter.Parameter;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.runtime.AbstractRunner;
@@ -125,22 +124,22 @@ public class ModelRunner {
     /**
      *
      */
-    public void runModel() {
-        if (getModel() != null) {
-            try {
-                Graph processingModelGraph = GraphUtils.compileGraph(getModel(), null, true);
-                String type = processingModelGraph.getType();
-
-                AbstractRunner runner = (AbstractRunner) Class.forName(type).newInstance();
-
-                runner.setGraph(processingModelGraph);
-                runner.init();
-                runner.execute();
-            } catch (InterruptedException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-//                outputTxt.append("\n\n" + ex.getLocalizedMessage() + "\n");
-            }
-        }
-    }
+//    public void runModel() {
+//        if (getModel() != null) {
+//            try {
+//                Graph processingModelGraph = GraphUtils.compileGraph(getModel(), null, true);
+//                String type = processingModelGraph.getType();
+//
+//                AbstractRunner runner = (AbstractRunner) Class.forName(type).newInstance();
+//
+//                runner.setGraph(processingModelGraph);
+//                runner.init();
+//                runner.execute();
+//            } catch (InterruptedException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+////                outputTxt.append("\n\n" + ex.getLocalizedMessage() + "\n");
+//            }
+//        }
+//    }
 
     //Setters with Map argument
     //==========================================================================

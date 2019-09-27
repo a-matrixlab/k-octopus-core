@@ -16,13 +16,12 @@
  */
 package org.lisapark.koctopus.core;
 
-import org.lisapark.koctopus.core.ProcessingModel;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
 import java.util.List;
-import java.util.Set;
+import org.lisapark.koctopus.core.sink.external.AbstractExternalSink;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -70,4 +69,13 @@ public interface OctopusRepository {
 
 //    void saveProcessingModelOnServer(ProcessingModel model, String turl,
 //            int tport, String tuid, String tpsw) throws RepositoryException;
+    
+        
+    AbstractExternalSource  getAbstractExternalSourceByName(String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
+    
+    AbstractExternalSink getAbstractExternalSinkByName(String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
+    
+    AbstractProcessor getAbstractProcessorByName(String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
+    
+    Object getObjectByName(String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
 }
