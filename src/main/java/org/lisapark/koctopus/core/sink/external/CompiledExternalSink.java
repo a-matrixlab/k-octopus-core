@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.lisapark.koctopus.core.runtime.SinkContext;
-import org.lisapark.koctopus.core.runtime.StreamingRuntime;
+import org.lisapark.koctopus.core.transport.StreamingRuntime;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)

@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import org.lisapark.koctopus.core.runtime.StreamingRuntime;
+import org.lisapark.koctopus.core.transport.StreamingRuntime;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)

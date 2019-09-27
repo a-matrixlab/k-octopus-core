@@ -18,7 +18,7 @@ package org.lisapark.koctopus.core.source.external;
 
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
-import org.lisapark.koctopus.core.runtime.StreamingRuntime;
+import org.lisapark.koctopus.core.transport.StreamingRuntime;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)

@@ -19,7 +19,7 @@ package org.lisapark.koctopus.core.sink.external;
 import java.util.Map;
 import org.lisapark.koctopus.core.Persistable;
 import org.lisapark.koctopus.core.ValidationException;
-import org.lisapark.koctopus.core.runtime.redis.StreamReference;
+import org.lisapark.koctopus.core.transport.TransportReference;
 import org.lisapark.koctopus.core.sink.Sink;
 
 /**
@@ -35,7 +35,7 @@ public interface ExternalSink extends Sink {
     @Override
     Sink copyOf();
 
-    Map<String, StreamReference> getReferences();
+    Map<String, TransportReference> getReferences();
 
-    void setReferences(Map<String, StreamReference> sourceref);
+    void setReferences(Map<String, TransportReference> sourceref);
 }

@@ -25,7 +25,7 @@ import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.Graph;
 import org.lisapark.koctopus.core.graph.api.Vocabulary;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
-import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
+import org.lisapark.koctopus.core.transport.redis.RedisTransport;
 import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
@@ -63,7 +63,7 @@ public class BaseController {
         String result = null;
         Gnode gnode = (Gnode) new Gnode().fromJson(json);
         String trnsUrl = gnode.getTransportUrl();
-        RedisRuntime runtime = new RedisRuntime(trnsUrl, System.out, System.err);
+        RedisTransport runtime = new RedisTransport(trnsUrl, System.out, System.err);
 
         try {
             String type;

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.lisapark.koctopus.core.runtime.redis;
+package org.lisapark.koctopus.core.transport.redis;
 
 import static com.google.common.base.Preconditions.checkState;
 import io.lettuce.core.RedisClient;
@@ -34,13 +34,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.lisapark.koctopus.core.runtime.StreamingRuntime;
+import org.lisapark.koctopus.core.transport.StreamingRuntime;
 
 /**
  *
  * @author alexmy
  */
-public class RedisRuntime implements StreamingRuntime<StreamMessage<String, String>> {
+public class RedisTransport implements StreamingRuntime<StreamMessage<String, String>> {
 
     private final int threadPoolSize = 1;
 
@@ -57,7 +57,7 @@ public class RedisRuntime implements StreamingRuntime<StreamMessage<String, Stri
 
     private State currentState = State.NOT_STARTED;
 
-    public RedisRuntime(String redisUrl, PrintStream standardOut, PrintStream standardError) {
+    public RedisTransport(String redisUrl, PrintStream standardOut, PrintStream standardError) {
         this.standardOut = standardOut;
         this.standardError = standardError;
         this.redisUrl = redisUrl;
@@ -73,7 +73,7 @@ public class RedisRuntime implements StreamingRuntime<StreamMessage<String, Stri
         String name = className + ":" + id.timestamp();
         readLock.lock();
         try {
-            checkState(currentState == RedisRuntime.State.RUNNING, "Cannot send an event unless the runtime has been started.");
+            checkState(currentState == RedisTransport.State.RUNNING, "Cannot send an event unless the runtime has been started.");
             Map<String, String> map = valueToString(event);
             streamCommands.xadd(name, map);
         } finally {
@@ -182,7 +182,7 @@ public class RedisRuntime implements StreamingRuntime<StreamMessage<String, Stri
             if (currentState != State.NOT_STARTED) {
                 throw new IllegalStateException(String.format("Cannot start runtime unless status is %s", State.NOT_STARTED));
             }
-            currentState = RedisRuntime.State.RUNNING;
+            currentState = RedisTransport.State.RUNNING;
         } finally {
             writeLock.unlock();
         }
@@ -194,7 +194,7 @@ public class RedisRuntime implements StreamingRuntime<StreamMessage<String, Stri
         boolean shutdownComplete = false;
         readLock.lock();
         try {
-            checkState(currentState == RedisRuntime.State.RUNNING, "Cannot shutdown if the runtime is not running");
+            checkState(currentState == RedisTransport.State.RUNNING, "Cannot shutdown if the runtime is not running");
             while (!shutdownComplete) {
                 executorService.shutdown();
                 try {

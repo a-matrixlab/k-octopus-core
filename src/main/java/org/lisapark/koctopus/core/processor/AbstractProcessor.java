@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.lisapark.koctopus.core.graph.Gnode;
-import org.lisapark.koctopus.core.runtime.redis.StreamReference;
+import org.lisapark.koctopus.core.transport.TransportReference;
 
 /**
  * A {@link AbstractProcessor} is a program unit that has one or more {@link Input}s and potentially produces an {@link Output}.In addition to {@link Input}s and an {@link Output}, a processor can be configured with additional {@link org.lisapark.koctopus.core.parameter.Parameter}s
@@ -337,7 +337,7 @@ public abstract class AbstractProcessor<MEMORY_TYPE> extends AbstractNode implem
         return null;
     }
     
-    public abstract Map<String, StreamReference> getReferences();
+    public abstract Map<String, TransportReference> getReferences();
 
-    public abstract void setReferences(Map<String, StreamReference> sourceref);
+    public abstract void setReferences(Map<String, TransportReference> sourceref);
 }

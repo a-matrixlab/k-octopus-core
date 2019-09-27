@@ -28,7 +28,7 @@ import org.lisapark.koctopus.core.graph.Gnode;
 import org.lisapark.koctopus.core.graph.Graph;
 import org.lisapark.koctopus.core.graph.api.Vocabulary;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
-import org.lisapark.koctopus.core.runtime.redis.RedisRuntime;
+import org.lisapark.koctopus.core.transport.redis.RedisTransport;
 import org.lisapark.koctopus.core.sink.external.AbstractExternalSink;
 import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
@@ -51,7 +51,7 @@ public class OctopusRunner extends AbstractRunner<Integer> {
     @Override
     public String processNode(Gnode gnode, boolean forward) {
         String trnsUrl = gnode.getTransportUrl();
-        RedisRuntime runtime = new RedisRuntime(trnsUrl, getStandardOut(), getStandardError());
+        RedisTransport runtime = new RedisTransport(trnsUrl, getStandardOut(), getStandardError());
         Integer status;
         try {
             String type;
