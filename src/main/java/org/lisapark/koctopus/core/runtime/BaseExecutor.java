@@ -33,9 +33,9 @@ import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
  *
  * @author alexmy
  */
-public class BaseController {
+public class BaseExecutor {
     
-    static final Logger LOG = Logger.getLogger(BaseController.class.getName());
+    static final Logger LOG = Logger.getLogger(BaseExecutor.class.getName());
 
     enum Status {
         SUCCESS(200),
