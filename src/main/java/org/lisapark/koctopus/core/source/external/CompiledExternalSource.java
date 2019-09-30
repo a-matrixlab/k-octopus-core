@@ -18,7 +18,7 @@ package org.lisapark.koctopus.core.source.external;
 
 import org.lisapark.koctopus.core.ProcessingException;
 import org.lisapark.koctopus.core.runtime.ProcessingRuntime;
-import org.lisapark.koctopus.core.transport.StreamingRuntime;
+import org.lisapark.koctopus.core.transport.Transport;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -27,7 +27,7 @@ public interface CompiledExternalSource {
 
     void startProcessingEvents(ProcessingRuntime runtime) throws ProcessingException;
     
-    Object startProcessingEvents(StreamingRuntime runtime) throws ProcessingException;
+    Object startProcessingEvents(Transport runtime) throws ProcessingException;
 
     void stopProcessingEvents();
 }

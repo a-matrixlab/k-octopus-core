@@ -14,7 +14,7 @@ import java.util.UUID;
  *
  * @author alexmy
  */
-public interface StreamingRuntime<T> {
+public interface Transport<T> {
     
     void writeEvents(Map<String, Object> event, String className, UUID id);
 

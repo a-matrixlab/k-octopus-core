@@ -34,13 +34,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.lisapark.koctopus.core.transport.StreamingRuntime;
+import org.lisapark.koctopus.core.transport.Transport;
 
 /**
  *
  * @author alexmy
  */
-public class RedisTransport implements StreamingRuntime<StreamMessage<String, String>> {
+public class RedisTransport implements Transport<StreamMessage<String, String>> {
 
     private final int threadPoolSize = 1;
 

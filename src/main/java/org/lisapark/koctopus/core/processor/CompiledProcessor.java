@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import org.lisapark.koctopus.core.transport.StreamingRuntime;
+import org.lisapark.koctopus.core.transport.Transport;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -75,5 +75,5 @@ public abstract class CompiledProcessor<MEMORY_TYPE> {
 
     public abstract Object processEvent(ProcessorContext<MEMORY_TYPE> ctx, Map<Integer, Event> eventsByInputId);
     
-    public abstract Object processEvent(StreamingRuntime runtime);
+    public abstract Object processEvent(Transport runtime);
 }

@@ -51,7 +51,7 @@ public class OctopusRunner extends AbstractRunner<Integer> {
     @Override
     public String processNode(Gnode gnode, boolean forward) {
         String trnsUrl = gnode.getTransportUrl();
-        RedisTransport runtime = new RedisTransport(trnsUrl, getStandardOut(), getStandardError());
+        RedisTransport transport = new RedisTransport(trnsUrl, getStandardOut(), getStandardError());
         Integer status;
         try {
             String type;
@@ -63,7 +63,7 @@ public class OctopusRunner extends AbstractRunner<Integer> {
 
                     String sourceUrl = source.getServiceUrl();
                     if (sourceUrl == null || sourceUrl.trim().isEmpty()) {
-                        status = (Integer) source.compile(source).startProcessingEvents(runtime);
+                        status = (Integer) source.compile(source).startProcessingEvents(transport);
                     } else {
                         try {
                             RuntimeUtils.runRemote(sourceUrl, gnode.toJson().toString());
@@ -82,7 +82,7 @@ public class OctopusRunner extends AbstractRunner<Integer> {
                     
                     String procUrl = processor.getServiceUrl();
                     if (procUrl == null || procUrl.trim().isEmpty()) {
-                        status = (Integer) processor.compile(processor).processEvent(runtime);
+                        status = (Integer) processor.compile(processor).processEvent(transport);
                     } else {
                         try {
                             RuntimeUtils.runRemote(procUrl, gnode.toJson().toString());
@@ -101,7 +101,7 @@ public class OctopusRunner extends AbstractRunner<Integer> {
                     
                     String sinkUrl = sink.getServiceUrl();
                     if (sinkUrl == null || sinkUrl.trim().isEmpty()) {
-                    status = (Integer) sink.compile(sink).processEvent(runtime);
+                    status = (Integer) sink.compile(sink).processEvent(transport);
                     } else {
                         try {
                             RuntimeUtils.runRemote(sinkUrl, gnode.toJson().toString());
