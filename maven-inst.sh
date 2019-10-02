@@ -1,20 +1,3 @@
-# Artifacts that need to be installed manually
-#==============================================
-# com.jidesoft:jide-action:jar:3.4.7, 
-# com.jidesoft:jide-common:jar:3.4.7, 
-# com.jidesoft:jide-components:jar:3.4.7, 
-# com.jidesoft:jide-dock:jar:3.4.7, 
-# com.jidesoft:jide-grids:jar:3.4.7,
-# com.google.gdata:com.google.gdata.spreadsheet:jar:3.0, 
-# com.google.gdata:com.google.gdata.core:jar:1.0, 
-# apache-beanutils:commons-beanutils:jar:1.7.0,
-# com.googlecode.sardine:sardine:jar:314:
-# 
-# Make this file executable by running
-# chmod a+x maven-inst.sh
-#
-#==============================================
-
 mvn install:install-file -Dfile=lib/jide-action-3.4.7.jar -DgroupId=com.jidesoft -DartifactId=jide-action -Dversion=3.4.7 -Dpackaging=jar
 mvn install:install-file -Dfile=lib/jide-common-3.4.7.jar -DgroupId=com.jidesoft -DartifactId=jide-common -Dversion=3.4.7 -Dpackaging=jar
 mvn install:install-file -Dfile=lib/jide-components-3.4.7.jar -DgroupId=com.jidesoft -DartifactId=jide-components -Dversion=3.4.7 -Dpackaging=jar
