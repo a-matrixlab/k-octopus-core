@@ -28,3 +28,4 @@ All projects require Java 8. This limitation is due to commercial software that 
 We would recommend to make a special directory for all Octopus projects, ex. "octopus". From "octopus" directory run
 > git clone https://github.com/a-matrixlab/k-octopus-core.git
 
+> git checkout k-octopus-core_0.7.3
