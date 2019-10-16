@@ -24,7 +24,7 @@ import org.lisapark.koctopus.core.sink.Sink;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.lisapark.koctopus.core.runtime.SinkContext;
+import org.lisapark.koctopus.core.sink.SinkContext;
 import org.lisapark.koctopus.core.transport.Transport;
 
 /**

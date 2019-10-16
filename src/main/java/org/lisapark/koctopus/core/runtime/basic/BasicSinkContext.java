@@ -16,7 +16,7 @@
  */
 package org.lisapark.koctopus.core.runtime.basic;
 
-import org.lisapark.koctopus.core.runtime.SinkContext;
+import org.lisapark.koctopus.core.sink.SinkContext;
 
 import java.io.PrintStream;
 

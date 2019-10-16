@@ -41,7 +41,7 @@ import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 @Persistable
 public abstract class AbstractNode implements Node {
 
-    private  UUID  id;
+    private  UUID       id;
     private String      name;
     private String      authorEmail;
     private String      description;

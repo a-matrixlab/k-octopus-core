@@ -49,6 +49,7 @@ import org.lisapark.koctopus.core.transport.TransportReference;
 @Persistable
 public abstract class AbstractProcessor<MEMORY_TYPE> extends AbstractNode implements Source, Sink {
     
+    private static final int LANGUAGE_PARAMETER_ID = 66666;
     private static final int TRANSPORT_PARAMETER_ID = 77777;
     private static final int SERVICE_PARAMETER_ID = 88888;
     private static final int LUCENE_PARAMETER_ID = 99999;
@@ -80,6 +81,10 @@ public abstract class AbstractProcessor<MEMORY_TYPE> extends AbstractNode implem
     protected AbstractProcessor(UUID id, String name, String description) {
         super(id, name, description);
         
+        super.addParameter(
+                Parameter.stringParameterWithIdAndName(LANGUAGE_PARAMETER_ID, "Program Lang").
+                        description("Programming language used to right this processor.").
+                        defaultValue("java"));
         super.addParameter(
                 Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Transport URL").
                         description("Transport URL.").

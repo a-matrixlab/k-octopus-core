@@ -16,8 +16,8 @@
  */
 package org.lisapark.koctopus.core;
 
+import java.net.MalformedURLException;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
-import org.lisapark.koctopus.core.sink.external.ExternalSink;
 import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
 import java.util.List;
@@ -50,7 +50,7 @@ public interface OctopusRepository {
     
     // Select processors
     //==========================================================================
-    List<ExternalSink>          getAllExternalSinkTemplates() throws RepositoryException;    
+    List<AbstractExternalSink>          getAllExternalSinkTemplates() throws RepositoryException;    
 //    Set<ExternalSink>           getExternalSinkTemplates(String name) throws RepositoryException;    
 //    Set<ExternalSink>           getExternalSinkTemplateByClassName(String name) throws RepositoryException;
     
@@ -71,11 +71,14 @@ public interface OctopusRepository {
 //            int tport, String tuid, String tpsw) throws RepositoryException;
     
         
-    AbstractExternalSource  getAbstractExternalSourceByName(String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
+    AbstractExternalSource  getAbstractExternalSourceByName(String type) 
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException;
     
-    AbstractExternalSink getAbstractExternalSinkByName(String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
+    AbstractExternalSink getAbstractExternalSinkByName(String type) 
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException;
     
-    AbstractProcessor getAbstractProcessorByName(String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
+    AbstractProcessor getAbstractProcessorByName(String type) 
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException;
     
     Object getObjectByName(String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
 }

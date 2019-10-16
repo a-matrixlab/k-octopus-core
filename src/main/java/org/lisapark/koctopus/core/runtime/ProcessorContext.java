@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.core.runtime;
 
+import org.lisapark.koctopus.core.sink.SinkContext;
 import org.lisapark.koctopus.core.memory.Memory;
 
 /**

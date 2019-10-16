@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2013 Lisa Park, Inc. (www.lisa-park.net)
+ * Copyright (C) 2013, 2019 Lisa Park, Inc. (www.lisa-park.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,10 +27,12 @@ import org.lisapark.koctopus.core.parameter.Parameter;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
+ *          alexmy@lisa-park.com
  */
 @Persistable
 public abstract class AbstractExternalSource extends AbstractNode implements Source {
 
+    private static final int LANGUAGE_PARAMETER_ID = 66666;
     private static final int TRANSPORT_PARAMETER_ID = 77777;
     private static final int SERVICE_PARAMETER_ID = 88888;
     private static final int LUCENE_PARAMETER_ID = 99999;
@@ -40,6 +42,10 @@ public abstract class AbstractExternalSource extends AbstractNode implements Sou
     protected AbstractExternalSource(UUID id, String name, String description) {
         super(id, name, description);
         
+        super.addParameter(
+                Parameter.stringParameterWithIdAndName(LANGUAGE_PARAMETER_ID, "Program Lang").
+                        description("Programming language used to right this processor.").
+                        defaultValue("java"));
         super.addParameter(
                 Parameter.stringParameterWithIdAndName(TRANSPORT_PARAMETER_ID, "Transport URL").
                         description("Transport URL.").
@@ -100,8 +106,6 @@ public abstract class AbstractExternalSource extends AbstractNode implements Sou
     
     public abstract <T extends AbstractExternalSource> CompiledExternalSource compile(T source) throws ValidationException;
     
-//    public abstract CompiledExternalSource compile(String json) throws ValidationException;
-
     @Override
     public abstract Source newInstance();
 
