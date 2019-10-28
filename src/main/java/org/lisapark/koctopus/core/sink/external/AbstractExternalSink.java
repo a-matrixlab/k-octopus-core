@@ -19,6 +19,7 @@ package org.lisapark.koctopus.core.sink.external;
 import java.util.UUID;
 import org.lisapark.koctopus.core.AbstractNode;
 import org.lisapark.koctopus.core.ValidationException;
+import org.lisapark.koctopus.core.graph.api.Vocabulary;
 import org.lisapark.koctopus.core.parameter.Parameter;
 
 /**
@@ -27,6 +28,9 @@ import org.lisapark.koctopus.core.parameter.Parameter;
  */
 public abstract class AbstractExternalSink extends AbstractNode implements ExternalSink {
 
+    private static final int KIND_PARAMETER_ID = 33333;
+    private static final int REPO_PATH_PARAMETER_ID = 44444;
+    private static final int VERSION_PARAMETER_ID = 55555;
     private static final int LANGUAGE_PARAMETER_ID = 66666;
     private static final int TRANSPORT_PARAMETER_ID = 77777;
     private static final int SERVICE_PARAMETER_ID = 88888;
@@ -35,6 +39,20 @@ public abstract class AbstractExternalSink extends AbstractNode implements Exter
     protected AbstractExternalSink(UUID uuid, String name, String description) {
         super(uuid, name, description);
         
+        super.addParameter(
+                Parameter.stringParameterWithIdAndName(KIND_PARAMETER_ID, "Kind of processor").
+                        description("Kind of processors one of 3: source, sink, processor.").
+                        defaultValue(Vocabulary.PROCESSOR).required(true));
+        
+        super.addParameter(
+                Parameter.stringParameterWithIdAndName(REPO_PATH_PARAMETER_ID, "Repo Path").
+                        description("Path to processor Repository. Default value to local Maven Repository.").
+                        defaultValue("java").required(true));
+        
+        super.addParameter(
+                Parameter.stringParameterWithIdAndName(VERSION_PARAMETER_ID, "Version").
+                        description("Path to processor Repository. Default value to local Maven Repository.").
+                        defaultValue("set version").required(true));
         super.addParameter(
                 Parameter.stringParameterWithIdAndName(LANGUAGE_PARAMETER_ID, "Program Lang").
                         description("Programming language used to right this processor.").
@@ -52,7 +70,34 @@ public abstract class AbstractExternalSink extends AbstractNode implements Exter
                         description("Lucene URL.").
                         defaultValue(""));
     }    
-    
+     
+    @SuppressWarnings("unchecked")
+    public void setKind(String kind) throws ValidationException {
+        getParameter(KIND_PARAMETER_ID).setValue(kind);
+    }
+
+    public String getKind() {
+        return getParameter(KIND_PARAMETER_ID).getValueAsString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setRepoPath(String repoPath) throws ValidationException {
+        getParameter(REPO_PATH_PARAMETER_ID).setValue(repoPath);
+    }
+
+    public String getRepoPath() {
+        return getParameter(REPO_PATH_PARAMETER_ID).getValueAsString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setVersion(String version) throws ValidationException {
+        getParameter(VERSION_PARAMETER_ID).setValue(version);
+    }
+
+    public String getVersion() {
+        return getParameter(VERSION_PARAMETER_ID).getValueAsString();
+    }
+
     @SuppressWarnings("unchecked")
     public void setLuceneIndex(String luceneIndex) throws ValidationException {
         getParameter(LUCENE_PARAMETER_ID).setValue(luceneIndex);

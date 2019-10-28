@@ -22,6 +22,7 @@ import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
 import java.util.List;
 import org.lisapark.koctopus.core.sink.external.AbstractExternalSink;
+import org.lisapark.koctopus.util.Pair;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
@@ -48,18 +49,19 @@ public interface OctopusRepository {
 //    ProcessingModel         getProcessingModelByName(String name, String turl,
 //            Integer tport, String tuid, String tpsw) throws RepositoryException;
     
+    void loadAllProcessors(List<AbstractExternalSource> sources, List<AbstractExternalSink> sinks, List<AbstractProcessor> processors);
+    
     // Select processors
     //==========================================================================
-    List<AbstractExternalSink>          getAllExternalSinkTemplates() throws RepositoryException;    
+    List<AbstractExternalSink>          getAllExternalSinkTemplates(List<String> sinkJars) throws RepositoryException;    
 //    Set<ExternalSink>           getExternalSinkTemplates(String name) throws RepositoryException;    
 //    Set<ExternalSink>           getExternalSinkTemplateByClassName(String name) throws RepositoryException;
     
-
-    List<AbstractExternalSource>        getAllExternalSourceTemplates() throws RepositoryException;    
+    List<AbstractExternalSource>        getAllExternalSourceTemplates(List<String> sourceJars) throws RepositoryException;    
 //    Set<ExternalSource>         getExternalSourceTemplates(String name) throws RepositoryException;    
 //    Set<ExternalSource>         getExternalSourceTemplateByClassName(String name) throws RepositoryException;
     
-    List<AbstractProcessor>     getAllProcessorTemplates() throws RepositoryException;    
+    List<AbstractProcessor>     getAllProcessorTemplates(List<String> processorJars) throws RepositoryException;    
 //    Set<AbstractProcessor>      getProcessorTemplates(String name) throws RepositoryException;    
 //    Set<AbstractProcessor>      getProcessorTemplateByClassName(String name) throws RepositoryException;
      
@@ -71,14 +73,14 @@ public interface OctopusRepository {
 //            int tport, String tuid, String tpsw) throws RepositoryException;
     
         
-    AbstractExternalSource  getAbstractExternalSourceByName(String type) 
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException;
+    AbstractExternalSource  getAbstractExternalSourceByName(Pair<String, String> jar_type) 
+            throws InstantiationException, IllegalAccessException, MalformedURLException;
     
-    AbstractExternalSink getAbstractExternalSinkByName(String type) 
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException;
+    AbstractExternalSink getAbstractExternalSinkByName(Pair<String, String> jar_type) 
+            throws InstantiationException, IllegalAccessException, MalformedURLException;
     
-    AbstractProcessor getAbstractProcessorByName(String type) 
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException;
+    AbstractProcessor getAbstractProcessorByName(Pair<String, String> jar_type) 
+            throws InstantiationException, IllegalAccessException, MalformedURLException;
     
-    Object getObjectByName(String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
+    Object getObjectByName(Pair<String, String> jar_type) throws InstantiationException, IllegalAccessException, MalformedURLException;
 }
