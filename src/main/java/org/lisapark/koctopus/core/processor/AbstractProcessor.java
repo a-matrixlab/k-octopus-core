@@ -93,12 +93,12 @@ public abstract class AbstractProcessor<MEMORY_TYPE> extends AbstractNode implem
         super.addParameter(
                 Parameter.stringParameterWithIdAndName(REPO_PATH_PARAMETER_ID, "Repo Path").
                         description("Path to processor Repository. Default value to local Maven Repository.").
-                        defaultValue("java").required(true));
+                        defaultValue("").required(true));
         
         super.addParameter(
                 Parameter.stringParameterWithIdAndName(VERSION_PARAMETER_ID, "Version").
                         description("Path to processor Repository. Default value to local Maven Repository.").
-                        defaultValue("set version").required(true));
+                        defaultValue("").required(true));
         
         super.addParameter(
                 Parameter.stringParameterWithIdAndName(LANGUAGE_PARAMETER_ID, "Program Lang").
@@ -375,6 +375,10 @@ public abstract class AbstractProcessor<MEMORY_TYPE> extends AbstractNode implem
     
     @Override
     public abstract AbstractProcessor<MEMORY_TYPE> newInstance(Gnode gnode);
+    
+    public abstract AbstractProcessor<MEMORY_TYPE> newTemplate();
+    
+    public abstract AbstractProcessor<MEMORY_TYPE> newTemplate(UUID uuid);
 
     @Override
     public abstract AbstractProcessor<MEMORY_TYPE> copyOf();

@@ -36,7 +36,6 @@ public interface Vocabulary {
     public static final String TARGET_DB_URL = "target-db-url";
 
     // Graph objects
-    public static final String OCTOPUS_RUNNER = "org.lisapark.koctopus.repo.OctopusRunner";
     public static final String SOURCE = "SOURCE";
     public static final String PROCESSOR = "PROCESSOR";
     public static final String SINK = "SINK";

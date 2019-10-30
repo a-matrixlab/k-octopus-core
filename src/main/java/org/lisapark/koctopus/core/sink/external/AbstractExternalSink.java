@@ -42,17 +42,17 @@ public abstract class AbstractExternalSink extends AbstractNode implements Exter
         super.addParameter(
                 Parameter.stringParameterWithIdAndName(KIND_PARAMETER_ID, "Kind of processor").
                         description("Kind of processors one of 3: source, sink, processor.").
-                        defaultValue(Vocabulary.PROCESSOR).required(true));
+                        defaultValue(Vocabulary.SINK).required(true));
         
         super.addParameter(
                 Parameter.stringParameterWithIdAndName(REPO_PATH_PARAMETER_ID, "Repo Path").
                         description("Path to processor Repository. Default value to local Maven Repository.").
-                        defaultValue("java").required(true));
+                        defaultValue("").required(true));
         
         super.addParameter(
                 Parameter.stringParameterWithIdAndName(VERSION_PARAMETER_ID, "Version").
                         description("Path to processor Repository. Default value to local Maven Repository.").
-                        defaultValue("set version").required(true));
+                        defaultValue("").required(true));
         super.addParameter(
                 Parameter.stringParameterWithIdAndName(LANGUAGE_PARAMETER_ID, "Program Lang").
                         description("Programming language used to right this processor.").
@@ -124,5 +124,9 @@ public abstract class AbstractExternalSink extends AbstractNode implements Exter
     public String getServiceUrl() {
         return getParameter(SERVICE_PARAMETER_ID).getValueAsString();
     }
+    
+    public abstract AbstractExternalSink newTemplate();
+    
+    public abstract AbstractExternalSink newTemplate(UUID uuid);
 
 }

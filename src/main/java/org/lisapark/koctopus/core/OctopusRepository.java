@@ -49,19 +49,19 @@ public interface OctopusRepository {
 //    ProcessingModel         getProcessingModelByName(String name, String turl,
 //            Integer tport, String tuid, String tpsw) throws RepositoryException;
     
-    void loadAllProcessors(List<AbstractExternalSource> sources, List<AbstractExternalSink> sinks, List<AbstractProcessor> processors);
+//    void loadAllProcessors(List<AbstractExternalSource> sources, List<AbstractExternalSink> sinks, List<AbstractProcessor> processors);
     
     // Select processors
     //==========================================================================
-    List<AbstractExternalSink>          getAllExternalSinkTemplates(List<String> sinkJars) throws RepositoryException;    
+//    List<AbstractExternalSink>          getAllExternalSinkTemplates(List<String> sinkJars) throws RepositoryException;    
 //    Set<ExternalSink>           getExternalSinkTemplates(String name) throws RepositoryException;    
 //    Set<ExternalSink>           getExternalSinkTemplateByClassName(String name) throws RepositoryException;
     
-    List<AbstractExternalSource>        getAllExternalSourceTemplates(List<String> sourceJars) throws RepositoryException;    
+//    List<AbstractExternalSource>        getAllExternalSourceTemplates(List<String> sourceJars) throws RepositoryException;    
 //    Set<ExternalSource>         getExternalSourceTemplates(String name) throws RepositoryException;    
 //    Set<ExternalSource>         getExternalSourceTemplateByClassName(String name) throws RepositoryException;
     
-    List<AbstractProcessor>     getAllProcessorTemplates(List<String> processorJars) throws RepositoryException;    
+//    List<AbstractProcessor>     getAllProcessorTemplates(List<String> processorJars) throws RepositoryException;    
 //    Set<AbstractProcessor>      getProcessorTemplates(String name) throws RepositoryException;    
 //    Set<AbstractProcessor>      getProcessorTemplateByClassName(String name) throws RepositoryException;
      
