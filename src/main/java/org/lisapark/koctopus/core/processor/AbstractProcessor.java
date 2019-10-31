@@ -376,8 +376,10 @@ public abstract class AbstractProcessor<MEMORY_TYPE> extends AbstractNode implem
     @Override
     public abstract AbstractProcessor<MEMORY_TYPE> newInstance(Gnode gnode);
     
+    @Override
     public abstract AbstractProcessor<MEMORY_TYPE> newTemplate();
     
+    @Override
     public abstract AbstractProcessor<MEMORY_TYPE> newTemplate(UUID uuid);
 
     @Override

@@ -16,6 +16,7 @@
  */
 package org.lisapark.koctopus.core;
 
+import java.util.UUID;
 import org.lisapark.koctopus.core.graph.Gnode;
 
 /**
@@ -44,4 +45,8 @@ public interface Reproducible {
     }
     
     Reproducible newInstance(Gnode gnode);
+    
+    Reproducible newTemplate();
+    
+    Reproducible newTemplate(UUID uuid);
 }

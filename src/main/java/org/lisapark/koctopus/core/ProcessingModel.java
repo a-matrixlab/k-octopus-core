@@ -29,6 +29,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import com.google.gson.Gson;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lisapark.koctopus.core.graph.Gnode;
@@ -330,17 +331,20 @@ public class ProcessingModel extends AbstractNode implements Validatable {
 
     @Override
     public Reproducible newInstance() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); 
+//To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public Copyable copyOf() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); 
+//To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public Reproducible newInstance(Gnode gnode) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); 
+//To change body of generated methods, choose Tools | Templates.
     }
 
     /**
@@ -349,15 +353,15 @@ public class ProcessingModel extends AbstractNode implements Validatable {
      */
     @Override
     public String toJson() {
+//
+//        ModelGraph modelGraph = new ModelGraph();
+//
+//        modelGraph.setName(getName());
+//        modelGraph.setSources(buildSources());
+//        modelGraph.setProcessors(buildProcessors());
+//        modelGraph.setSinks(buildSinks());
 
-        ModelGraph modelGraph = new ModelGraph();
-
-        modelGraph.setName(getName());
-        modelGraph.setSources(buildSources());
-        modelGraph.setProcessors(buildProcessors());
-        modelGraph.setSinks(buildSinks());
-
-        return new Gson().toJson(modelGraph, ModelGraph.class);
+        return new Gson().toJson(this, this.getClass());
     }
 
     @Override
@@ -367,40 +371,51 @@ public class ProcessingModel extends AbstractNode implements Validatable {
 
     // Set of supporting private methods
     //==========================================================================
-    private Set<String> buildSources() {
+//    private Set<String> buildSources() {
+//
+//        Set<AbstractExternalSource> sourceset = getExternalSources();
+//        Set<String> sources = Sets.newHashSet();
+//
+//        sourceset.forEach((item) -> {
+//            sources.add(item.toJson());
+//        });
+//
+//        return sources;
+//    }
+//
+//    private Set<String> buildProcessors() {
+//
+//        Set<AbstractProcessor> processorset = getProcessors();
+//        Set<String> _processors = Sets.newHashSet();
+//
+//        processorset.forEach((item) -> {
+//            _processors.add(item.toJson());
+//        });
+//
+//        return _processors;
+//    }
+//
+//    private Set<String> buildSinks() {
+//
+//        Set<ExternalSink> sinkset = getExternalSinks();
+//        Set<String> sinks = Sets.newHashSet();
+//
+//        sinkset.forEach((item) -> {
+//            sinks.add(item.toJson());
+//        });
+//
+//        return sinks;
+//    }
 
-        Set<AbstractExternalSource> sourceset = getExternalSources();
-        Set<String> sources = Sets.newHashSet();
-
-        sourceset.forEach((item) -> {
-            sources.add(item.toJson());
-        });
-
-        return sources;
+    @Override
+    public Reproducible newTemplate() {
+        throw new UnsupportedOperationException("Not supported yet."); 
+//To change body of generated methods, choose Tools | Templates.
     }
 
-    private Set<String> buildProcessors() {
-
-        Set<AbstractProcessor> processorset = getProcessors();
-        Set<String> _processors = Sets.newHashSet();
-
-        processorset.forEach((item) -> {
-            _processors.add(item.toJson());
-        });
-
-        return _processors;
+    @Override
+    public Reproducible newTemplate(UUID uuid) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+//To change body of generated methods, choose Tools | Templates.
     }
-
-    private Set<String> buildSinks() {
-
-        Set<ExternalSink> sinkset = getExternalSinks();
-        Set<String> sinks = Sets.newHashSet();
-
-        sinkset.forEach((item) -> {
-            sinks.add(item.toJson());
-        });
-
-        return sinks;
-    }
-
 }
