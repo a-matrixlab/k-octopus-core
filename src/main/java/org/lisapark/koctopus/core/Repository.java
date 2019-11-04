@@ -20,14 +20,13 @@ import java.net.MalformedURLException;
 import org.lisapark.koctopus.core.processor.AbstractProcessor;
 import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 
-import java.util.List;
 import org.lisapark.koctopus.core.sink.external.AbstractExternalSink;
 import org.lisapark.koctopus.util.Pair;
 
 /**
  * @author dave sinclair(david.sinclair@lisa-park.com)
  */
-public interface OctopusRepository {
+public interface Repository {
    
     // Work with model list locally
     //==========================================================================
