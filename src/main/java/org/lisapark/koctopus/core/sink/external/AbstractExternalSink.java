@@ -125,8 +125,13 @@ public abstract class AbstractExternalSink extends AbstractNode implements Exter
         return getParameter(SERVICE_PARAMETER_ID).getValueAsString();
     }
     
+    @Override
     public abstract AbstractExternalSink newTemplate();
     
+    @Override
     public abstract AbstractExternalSink newTemplate(UUID uuid);
+
+    
+    public abstract <T extends AbstractExternalSink> CompiledExternalSink compile(T sink) throws ValidationException;
 
 }

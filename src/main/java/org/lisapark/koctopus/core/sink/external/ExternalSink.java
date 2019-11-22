@@ -30,8 +30,6 @@ public interface ExternalSink extends Sink {
 
     CompiledExternalSink compile() throws ValidationException;
 
-    <T extends ExternalSink> CompiledExternalSink compile(T sink) throws ValidationException;
-
     @Override
     Sink copyOf();
 
