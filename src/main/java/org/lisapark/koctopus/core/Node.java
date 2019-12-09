@@ -48,12 +48,5 @@ public interface Node extends Reproducible, Validatable, Copyable {
     Icon            getIcon();
 
     Node            setIcon(Icon icon);
-    
-    void            complete();
-    
-    /**
-     *
-     * @return
-     */
-    String          toJson();
+   
 }

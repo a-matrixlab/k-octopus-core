@@ -28,7 +28,6 @@ import org.lisapark.koctopus.core.source.external.AbstractExternalSource;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import com.google.gson.Gson;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -308,27 +307,6 @@ public class ProcessingModel extends AbstractNode implements Validatable {
         }
     }
 
-    /**
-     * Relieves all resources by running complete() method for all model's
-     * sources, processors and sinks.
-     */
-    @Override
-    public void complete() {
-        Set<AbstractExternalSource> sourceset = getExternalSources();
-        Set<AbstractProcessor> processorset = getProcessors();
-        Set<ExternalSink> sinkset = getExternalSinks();
-
-        sourceset.forEach((item) -> {
-            item.complete();
-        });
-        processorset.forEach((item) -> {
-            item.complete();
-        });
-        sinkset.forEach((item) -> {
-            item.complete();
-        });
-    }
-
     @Override
     public Reproducible newInstance() {
         throw new UnsupportedOperationException("Not supported yet."); 
@@ -345,28 +323,6 @@ public class ProcessingModel extends AbstractNode implements Validatable {
     public Reproducible newInstance(Gnode gnode) {
         throw new UnsupportedOperationException("Not supported yet."); 
 //To change body of generated methods, choose Tools | Templates.
-    }
-
-    /**
-     *
-     * @return
-     */
-    @Override
-    public String toJson() {
-//
-//        ModelGraph modelGraph = new ModelGraph();
-//
-//        modelGraph.setName(getName());
-//        modelGraph.setSources(buildSources());
-//        modelGraph.setProcessors(buildProcessors());
-//        modelGraph.setSinks(buildSinks());
-
-        return new Gson().toJson(this, this.getClass());
-    }
-
-    @Override
-    public String toString() {
-        return toJson();
     }
 
     // Set of supporting private methods

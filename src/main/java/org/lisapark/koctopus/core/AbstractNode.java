@@ -207,41 +207,6 @@ public abstract class AbstractNode implements Node {
         return getId().hashCode();
     }
     
-    @Override
-    public String toJson(){
-        
-        ProcessorBean procBean = new ProcessorBean();
-        
-        procBean.setClassName(getClass().getCanonicalName());
-        procBean.setProcId(getId().toString());
-        procBean.setName(getName());
-        procBean.setAuthorEmail(getAuthorEmail());
-        procBean.setDescription(getDescription());
-        
-        String type;
-        if (this instanceof ExternalSink) {
-            type = JsonUtils.SINK;
-        } else if (this instanceof AbstractExternalSource) {
-            type = JsonUtils.SOURCE;
-        } else {
-            type = JsonUtils.PROCESSOR;
-        }        
-        
-        procBean.setProcType(type);
-        
-        Set<Parameter> params = getParameters();
-        HashMap<String, Object> map = Maps.newHashMap();
-        
-        params.forEach((param) -> {
-            map.put(JsonUtils.formatString(param.getName()), param.getValue());
-        });
-        
-        procBean.setParams(map);
-                        
-        String jsonString = new Gson().toJson(procBean, ProcessorBean.class);
-
-        return jsonString;
-    }
 
     /**
      * @return the authorEmail
@@ -255,15 +220,5 @@ public abstract class AbstractNode implements Node {
      */
     public void setAuthorEmail(String authorEmail) {
         this.authorEmail = authorEmail;
-    }
-    
-    @Override
-    public String toString(){
-        return toJson();
-    }
-
-    @Override
-    public void complete() {
-
-    }
+    }   
 }
